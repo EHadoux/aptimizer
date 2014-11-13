@@ -5,5 +5,7 @@ module Arg2MOMDP
     rule(/\s/)
     rule(/,/)                   { :COMMA          }
     rule(/[a-z]+/)              { |a| [:ARG, a]   }
+    rule(/e\(/)                 { :ATK            }
+    rule(/\)/)                  { :RP             }
   end
 end
