@@ -21,3 +21,31 @@ Example: ```a, bb, ccc,d```
 ###Attacks
 Attacks are a list of ```e``` predicates applied on two arguments, separated by a comma.
 Example: ```e(a,bb), e(ccc, bb), e(d,a)```
+
+## Installation
+
+Add this line to your application's Gemfile:
+
+```ruby
+gem 'arg2momdp'
+```
+
+And then execute:
+
+    $ bundle
+
+Or install it yourself as:
+
+    $ gem install arg2momdp
+
+## Usage
+
+TODO: Write usage instructions here
+
+## Contributing
+
+1. Fork it ( https://github.com/EHadoux/arg2momdp/fork )
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create a new Pull Request
