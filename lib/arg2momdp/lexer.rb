@@ -7,5 +7,8 @@ module Arg2MOMDP
     rule(/[a-z]+/)              { |a| [:ARG, a]   }
     rule(/e\(/)                 { :ATK            }
     rule(/\)/)                  { :RP             }
+    rule(/h\(/)                 { :PRIV           }
+    rule(/a\(/)                 { :PUB            }
+    rule(/&/)                   { :AND            }
   end
 end

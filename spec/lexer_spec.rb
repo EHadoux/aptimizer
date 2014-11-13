@@ -40,4 +40,21 @@ RSpec.describe Arg2MOMDP::Lexer do
       expect(lexed_arr.join(" ")).to eq("ATK ARG(a) COMMA ARG(bb) RP COMMA ATK ARG(e) COMMA ARG(cc) RP EOS")
     end
   end
+
+  context "Predicate" do
+    it "lexes a predicate" do
+      lexed_arr = Arg2MOMDP::Lexer::lex("a(a)")
+      expect(lexed_arr.join(" ")).to eq("PUB ARG(a) RP EOS")
+
+      lexed_arr = Arg2MOMDP::Lexer::lex("h(aa)")
+      expect(lexed_arr.join(" ")).to eq("PRIV ARG(aa) RP EOS")
+    end
+  end
+
+  context "Initial" do
+    it "lexes a list of predicates" do
+      lexed_arr = Arg2MOMDP::Lexer::lex("a(a) & h(bb) & e(a,b)")
+      expect(lexed_arr.join(" ")).to eq("PUB ARG(a) RP AND PRIV ARG(bb) RP AND ATK ARG(a) COMMA ARG(b) RP EOS")
+    end
+  end
 end
