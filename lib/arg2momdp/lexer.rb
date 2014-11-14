@@ -9,6 +9,8 @@ module Arg2MOMDP
     rule(/\)/)                  { :RP                  }
     rule(/h\(/)                 { :PRIV                }
     rule(/a\(/)                 { :PUB                 }
+    rule(/g\(/)                 { :GOAL                }
+    rule(/!/)                   { :NOT                 }
     rule(/(0\.[0-9]+|1(\.0)?)/) { |p| [:PROBA, p.to_f] }
     rule(/&/)                   { :AND                 }
     rule(/\|/)                  { :OR                  }

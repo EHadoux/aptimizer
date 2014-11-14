@@ -3,10 +3,11 @@ require "rltk/parser"
 module Arg2MOMDP
   class Parser < RLTK::Parser
     production(:input) do
-      clause("args")    { |a| a }
-      clause("atks")    { |a| a }
-      clause("rules")   { |r| r }
-      clause("initial") { |i| i }
+      clause("args")      { |a| a }
+      clause("atks")      { |a| a }
+      clause("rules")     { |r| r }
+      clause("initial")   { |i| i }
+      clause("goalslist") { |g| g }
     end
 
     nonempty_list(:args, :ARG, :COMMA)
@@ -34,6 +35,16 @@ module Arg2MOMDP
     end
 
     nonempty_list(:initial, :predicate, :AND)
+
+    production(:goalslist) do
+      clause("goals AND antigoals") { |g, _, ag| [g,  ag] }
+      clause("goals")               { |g|        [g,  []] }
+      clause("antigoals")           { |ag|       [[], ag] }
+    end
+    list(:goals, :goal, :AND)
+    list(:antigoals, :antigoal, :AND)
+    production(:goal, "GOAL ARG RP")         { |_, a, _| a    }
+    production(:antigoal, "NOT GOAL ARG RP") { |_, _, a, _| a }
 
     finalize({:use => 'parser.tbl'})
   end

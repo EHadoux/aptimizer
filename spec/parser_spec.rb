@@ -58,12 +58,12 @@ RSpec.describe Arg2MOMDP::Parser do
 
   context "Rule" do
     it "parses a rule" do
-      rule_arr = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer::lex("a(a) => 1.0: +a(b)"))
-      expect(rule_arr[0]).to be_a(Arg2MOMDP::Rule)
-      expect(rule_arr.size).to eq(1)
-      expect(rule_arr[0].premisses.size).to eq(1)
-      expect(rule_arr[0].alternatives[0].probability).to eq(1)
-      expect(rule_arr[0].alternatives[0].modifiers.size).to eq(1)
+      rule = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer::lex("a(a) => 1.0: +a(b)"))
+      expect(rule[0]).to be_a(Arg2MOMDP::Rule)
+      expect(rule.size).to eq(1)
+      expect(rule[0].premisses.size).to eq(1)
+      expect(rule[0].alternatives[0].probability).to eq(1)
+      expect(rule[0].alternatives[0].modifiers.size).to eq(1)
     end
 
     it "does not parse a rule without probability" do
@@ -79,6 +79,27 @@ RSpec.describe Arg2MOMDP::Parser do
       rule_arr = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer::lex(
                                "a(a) => 0.5: +a(b) | 0.5: +a(c), a(c) & h(b) => 0.7: .+h(c) | 0.3: .+h(d)"))
       expect(rule_arr.size).to eq(2)
+    end
+  end
+
+  context "Goal" do
+    it "parses a goal" do
+      goal = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer::lex("g(a)"))
+      expect(goal).to eq([["a"], []])
+    end
+
+    it "parses an anti-goal" do
+      goal = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer::lex("!g(a)"))
+      expect(goal).to eq([[], ["a"]])
+    end
+
+    it "parses a list of goals and antigoals" do
+      goal_arr = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer::lex("g(a) & g(b) & !g(a) & !g(b)"))
+      expect(goal_arr).to eq([%w(a b), %w(a b)])
+    end
+
+    it "does not parse a list of goals and antigoals in the wrong order" do
+      expect {Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer::lex("g(a) & !g(b) & !g(a) & g(b)"))}.to raise_error
     end
   end
 end

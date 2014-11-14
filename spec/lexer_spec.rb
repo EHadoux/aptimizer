@@ -97,4 +97,16 @@ RSpec.describe Arg2MOMDP::Lexer do
       expect(r.join(" ")).to eq("OR EOS")
     end
   end
+
+  context "Goal" do
+    it "lexes a goal" do
+      g = Arg2MOMDP::Lexer::lex("g(a)")
+      expect(g.join(" ")).to eq("GOAL ARG(a) RP EOS")
+    end
+
+    it "lexes an anti-goal" do
+      g = Arg2MOMDP::Lexer::lex("!g(a)")
+      expect(g.join(" ")).to eq("NOT GOAL ARG(a) RP EOS")
+    end
+  end
 end
