@@ -18,10 +18,45 @@ The file can then be processed with the algorithm of your choice.
 ##Input format
 In all the input strings, spaces are not read, i.e., ```a,b``` is equivalent to ```a, b```.
 ###Arguments
-Arguments are represented by a list of lowcase letters (```a```) or words (```aaaaaa```) separated by a comma, e.g. ```a, bb, ccc,d```
+Arguments are represented by a list of lowcase letters (```a```) or words (```aaaaaa```) separated by commas, e.g. ```a, bb, ccc,d```
 
 ###Attacks
 Attacks are a list of ```e``` predicates applied on two arguments, separated by a comma, e.g. ```e(a,bb), e(ccc, bb), e(d,a)```
+
+###Goals
+Goals are a list of ```g``` predicates applied to one argument, separated by ampersands (```&```). 
+Anti-goals, arguments to avoid being in the public space, are also supported using ```!g```. 
+If anti-goals are specified, they must be all grouped after the goals specification, e.g. ```g(a) & g(b) & !g(c) & !g(d)```.
+
+###Predicates
+There are three kinds of predicates:
+
+1. Attacks (see above)
+2. Publicly exposed arguments: predicate ```a``` applied to one argument, e.g. ```a(a)```
+3. Private arguments: predicate ```h``` applied to one argument, e.g. ```h(a)```
+
+###Modifiers
+Those predicates can be modified (added or removed from the public space or a private state).
+
+- Only attacks and public exposition can be added to or removed from the public space, e.g. ```+e(a,b)``` or ```-a(c)```
+- Only private arguments can be added to or removed from the private state of an agent, e.g. ```.+h(a)``` or ```.-h(c)```
+
+###Rules 
+Two sets of rules have to be specified: one for the agent to optimize and one for the opponent. 
+The former will be automatically cut into actions (thus removing the probabilities) if it not has been already done. 
+The later will be left untouched.
+A rule is composed of a list of predicates (the premisses) separated by ampersands, an arrow ```=>``` and a list of alternatives separated by the pipe character (```|```).
+
+An alternative is composed of a probability, a colon and a list of modifiers separated by ampersands.
+If the probability is 1 (only one alternative for the rule) it must be specified.
+
+Example: ```h(b) & a(f) => 0.8: +a(e) & +e(e,g) | 0.2: +a(d) & +e(d,a)```
+
+The sets of rules are composed by rules, separated by commas.
+
+###Initial state
+The initial state can be specified as a list of predicates, similarly to rule premisses.
+All unspecified predicates are supposed to be false.
 
 ## Installation
 
