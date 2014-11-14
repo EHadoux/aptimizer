@@ -69,4 +69,32 @@ RSpec.describe Arg2MOMDP::Lexer do
       expect(lexed_arr.join(" ")).to eq("PRIVPLUS PRIV ARG(bbb) RP EOS")
     end
   end
+
+  context "Probability" do
+    it "lexes a probability" do
+      proba = Arg2MOMDP::Lexer::lex("0.45")
+      expect(proba.join(" ")).to eq("PROBA(0.45) EOS")
+    end
+
+    it "lexes 1.0" do
+      proba = Arg2MOMDP::Lexer::lex("1.0")
+      expect(proba.join(" ")).to eq("PROBA(1.0) EOS")
+    end
+
+    it "lexes 1" do
+      proba = Arg2MOMDP::Lexer::lex("1")
+      expect(proba.join(" ")).to eq("PROBA(1.0) EOS")
+    end
+
+    it "does not lex a probability > 1.0" do
+      expect {Arg2MOMDP::Lexer::lex("1.4")}.to raise_error
+    end
+  end
+
+  context "Rules" do
+    it "lexes a OR" do
+      r = Arg2MOMDP::Lexer::lex("|")
+      expect(r.join(" ")).to eq("OR EOS")
+    end
+  end
 end

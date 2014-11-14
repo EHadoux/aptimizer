@@ -5,6 +5,7 @@ module Arg2MOMDP
     production(:input) do
       clause("args")    { |a| a }
       clause("atks")    { |a| a }
+      clause("rules")   { |r| r }
       clause("initial") { |i| i }
     end
 
@@ -13,11 +14,18 @@ module Arg2MOMDP
     production(:atk, "ATK ARG COMMA ARG RP") { |_, a, _, b, _| Predicate.new(:atk, a, b) }
     nonempty_list(:atks, :atk, :COMMA)
 
+    production(:rule, "premisses IMPLIES alternatives") { |p, _, c| Rule.new(p,c) }
+    nonempty_list(:rules, :rule, :COMMA)
+
+    nonempty_list(:premisses, :predicate, :AND)
     production(:predicate) do
       clause("PRIV ARG RP") { |_, a, _| Predicate.new(:priv, a) }
       clause("PUB ARG RP")  { |_, a, _| Predicate.new(:pub, a) }
       clause("atk") { |a| a }
     end
+    nonempty_list(:alternatives, :alternative, :OR)
+    production(:alternative, "PROBA COLON claims") { |p, _, c| Alternative.new(c, p) }
+    nonempty_list(:claims, :modifier, :AND)
     production(:modifier) do
       clause("PUBPLUS predicate")   { |_, p| Modifier.new(:add, :pub, p)  }
       clause("PUBMINUS predicate")  { |_, p| Modifier.new(:rem, :pub, p)  }

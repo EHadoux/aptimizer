@@ -56,9 +56,29 @@ RSpec.describe Arg2MOMDP::Parser do
     end
   end
 
-  context "Modifier" do
-    it "parses a modifier" do
-       # Cannot parse at the moment
+  context "Rule" do
+    it "parses a rule" do
+      rule_arr = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer::lex("a(a) => 1.0: +a(b)"))
+      expect(rule_arr[0]).to be_a(Arg2MOMDP::Rule)
+      expect(rule_arr.size).to eq(1)
+      expect(rule_arr[0].premisses.size).to eq(1)
+      expect(rule_arr[0].alternatives[0].probability).to eq(1)
+      expect(rule_arr[0].alternatives[0].modifiers.size).to eq(1)
+    end
+
+    it "does not parse a rule without probability" do
+      expect {Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer::lex("a(a) => +a(b)"))}.to raise_error
+    end
+
+    it "parses a rule with several alternatives" do
+      rule_arr = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer::lex("a(a) => 0.5: +a(b) | 0.5: +a(c)"))
+      expect(rule_arr[0].alternatives.size).to eq(2)
+    end
+
+    it "parses several rules with several alternatives" do
+      rule_arr = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer::lex(
+                               "a(a) => 0.5: +a(b) | 0.5: +a(c), a(c) & h(b) => 0.7: .+h(c) | 0.3: .+h(d)"))
+      expect(rule_arr.size).to eq(2)
     end
   end
 end
