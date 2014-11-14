@@ -55,4 +55,10 @@ RSpec.describe Arg2MOMDP::Parser do
       expect(pred_arr.size).to eq(3)
     end
   end
+
+  context "Modifier" do
+    it "parses a modifier" do
+       # Cannot parse at the moment
+    end
+  end
 end

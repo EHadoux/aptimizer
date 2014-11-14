@@ -10,5 +10,9 @@ module Arg2MOMDP
     rule(/h\(/)                 { :PRIV           }
     rule(/a\(/)                 { :PUB            }
     rule(/&/)                   { :AND            }
+    rule(/\+/)                  { :PUBPLUS        }
+    rule(/-/)                   { :PUBMINUS       }
+    rule(/\.\+/)                { :PRIVPLUS       }
+    rule(/\.-/)                 { :PRIVMINUS      }
   end
 end

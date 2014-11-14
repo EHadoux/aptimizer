@@ -18,6 +18,13 @@ module Arg2MOMDP
       clause("PUB ARG RP")  { |_, a, _| Predicate.new(:pub, a) }
       clause("atk") { |a| a }
     end
+    production(:modifier) do
+      clause("PUBPLUS predicate")   { |_, p| Modifier.new(:add, :pub, p)  }
+      clause("PUBMINUS predicate")  { |_, p| Modifier.new(:rem, :pub, p)  }
+      clause("PRIVPLUS predicate")  { |_, p| Modifier.new(:add, :priv, p) }
+      clause("PRIVMINUS predicate") { |_, p| Modifier.new(:rem, :priv, p) }
+    end
+
     nonempty_list(:initial, :predicate, :AND)
 
     finalize({:use => 'parser.tbl'})

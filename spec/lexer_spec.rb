@@ -57,4 +57,16 @@ RSpec.describe Arg2MOMDP::Lexer do
       expect(lexed_arr.join(" ")).to eq("PUB ARG(a) RP AND PRIV ARG(bb) RP AND ATK ARG(a) COMMA ARG(b) RP EOS")
     end
   end
+
+  context "Modifier" do
+    it "lexes all the modifiers" do
+      lexed_arr = Arg2MOMDP::Lexer::lex("+ - .+ .-")
+      expect(lexed_arr.join(" ")).to eq("PUBPLUS PUBMINUS PRIVPLUS PRIVMINUS EOS")
+    end
+
+    it "lexes a modifier and a predicate" do
+      lexed_arr = Arg2MOMDP::Lexer::lex(".+h(bbb)")
+      expect(lexed_arr.join(" ")).to eq("PRIVPLUS PRIV ARG(bbb) RP EOS")
+    end
+  end
 end
