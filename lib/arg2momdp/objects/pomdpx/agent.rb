@@ -12,9 +12,6 @@ module Arg2MOMDP
         filter_initial_state(initial_state)
       end
 
-        end
-      end
-
       private
 
       def cut_actions(rules)
