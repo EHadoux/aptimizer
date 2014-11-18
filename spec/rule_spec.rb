@@ -3,9 +3,9 @@ require "spec_helper"
 
 RSpec.describe Arg2MOMDP::Rule do
   before(:each) do
-    @a1 = double(:probability => 1)
-    @a2 = double(:probability => 0.5, :to_s => "0.5: +a(a) & .-h(b)")
-    @a3 = double(:probability => 0.5, :to_s => "0.5: +e(a,b) & .+a(b)")
+    @a1 = double(:probability => 1, :modifies? => false)
+    @a2 = double(:probability => 0.5, :to_s => "0.5: +a(a) & .-h(b)", :modifies? => true)
+    @a3 = double(:probability => 0.5, :to_s => "0.5: +e(a,b) & .+a(b)", :modifies => false)
   end
 
   it "raises an error if the sum of probabilities is not 1.0 with one alternative" do
@@ -29,5 +29,14 @@ RSpec.describe Arg2MOMDP::Rule do
     p2 = double(:to_s => "e(a,b)")
     r  = Arg2MOMDP::Rule.new([p1,p2], [@a2, @a3])
     expect(r.to_s).to eq("a(a) & e(a,b) => 0.5: +a(a) & .-h(b) | 0.5: +e(a,b) & .+a(b)")
+  end
+
+  it "returns whether it modifies" do
+    p1 = double(:to_s => "a(a)")
+    p2 = double(:to_s => "e(a,b)")
+    r  = Arg2MOMDP::Rule.new([p1,p2], [@a1])
+    expect(r.modifies?(nil, nil, nil)).to be_falsey
+    r  = Arg2MOMDP::Rule.new([p1,p2], [@a2, @a3])
+    expect(r.modifies?(nil, nil, nil)).to be_truthy
   end
 end

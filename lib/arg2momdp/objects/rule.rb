@@ -14,5 +14,9 @@ module Arg2MOMDP
     def to_s
       "#{@premisses.join(" & ")} => #{@alternatives.join(" | ")}"
     end
+
+    def modifies?(type, arg1, arg2=nil)
+      @alternatives.any? {|a| a.modifies?(type, arg1, arg2)}
+    end
   end
 end

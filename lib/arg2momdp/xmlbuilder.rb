@@ -81,64 +81,43 @@ module Arg2MOMDP
         }
       end
 
+      def build_cond_prob(xml, var, parent, *instances)
+        xml.CondProb {
+          xml.Var var
+          xml.Parent parent
+          xml.Parameter(:type => "TBL") {
+            instances.each_slice(2) do |i, p|
+              xml.Entry {
+                xml.Instance i
+                xml.ProbTable p
+              }
+            end
+          }
+        }
+      end
+
       def build_argument_initial_state(xml, agent, suffix)
         agent.arguments.each do |a|
-          xml.CondProb {
-            xml.Var "#{a}#{suffix}"
-            xml.Parent "null"
-            xml.Parameter(:type => "TBL") {
-              xml.Entry {
-                xml.Instance "#{agent.initial_state[a] ? "s1" : "s0"}"
-                xml.ProbTable 1.0
-              }
-            }
-          }
+          build_cond_prob(xml, "#{a}#{suffix}", "null", "#{agent.initial_state[a] ? "s1" : "s0"}", 1.0)
         end
       end
 
       def build_attacks_initial_state(xml)
         @pomdpx.public_state.attacks.each do |a|
           atk_str = "#{a.argument1}_#{a.argument2}"
-          xml.CondProb {
-            xml.Var "#{atk_str}"
-            xml.Parent "null"
-            xml.Parameter(:type => "TBL") {
-              xml.Entry {
-                xml.Instance "#{@pomdpx.public_state.initial_state[atk_str] ? "s1" : "s0"}"
-                xml.ProbTable 1.0
-              }
-            }
-          }
+          build_cond_prob(xml, "#{atk_str}", "null", "#{@pomdpx.public_state.initial_state[atk_str] ? "s1" : "s0"}", 1.0)
         end
       end
 
       def build_opponent_argument_initial_state(xml)
         @pomdpx.opponent.arguments.each do |a|
-          xml.CondProb {
-            xml.Var "#{a}2"
-            xml.Parent "null"
-            xml.Parameter(:type => "TBL") {
-              xml.Entry {
-                xml.Instance "-"
-                xml.ProbTable "uniform"
-              }
-            }
-          }
+          build_cond_prob(xml, "#{a}2", "null", "-", "uniform")
         end
       end
 
       def build_flags_initial_state(xml)
         @pomdpx.opponent.flags.each do |f|
-          xml.CondProb {
-            xml.Var f[0]
-            xml.Parent "null"
-            xml.Parameter(:type => "TBL") {
-              xml.Entry {
-                xml.Instance "-"
-                xml.ProbTable @pomdpx.opponent.rules[f[0][1..-1].to_i-1].alternatives.map {|a| a.probability }.join(" ")
-              }
-            }
-          }
+          build_cond_prob(xml, f[0], "null", "-", @pomdpx.opponent.rules[f[0][1..-1].to_i-1].alternatives.map {|a| a.probability}.join(" "))
         end
       end
     end

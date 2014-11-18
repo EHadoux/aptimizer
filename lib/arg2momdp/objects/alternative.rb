@@ -11,5 +11,9 @@ module Arg2MOMDP
     def to_s
       "#{@probability}: #{@modifiers.join(" & ")}"
     end
+
+    def modifies?(type, arg1, arg2=nil)
+      @modifiers.any? {|m| m.predicate.is?(type, arg1, arg2)}
+    end
   end
 end
