@@ -1,8 +1,9 @@
 module Arg2MOMDP
   class Predicate
-    attr_reader :argument1, :argument2, :type
+    attr_reader :argument1, :argument2, :type, :positive
 
-    def initialize(type, arg1, arg2=nil)
+    def initialize(type, arg1, arg2=nil, positive=true)
+      @positive  = positive
       @argument1 = arg1
       @argument2 = arg2
       @type      = type
@@ -11,23 +12,32 @@ module Arg2MOMDP
     end
 
     def to_s
+      side_str = (@positive ? "" : "!")
       case type
-        when :atk  then "e(#{@argument1}, #{@argument2})"
-        when :priv then "h(#{@argument1})"
-        when :pub  then "a(#{@argument1})"
+        when :atk  then "#{side_str}e(#{@argument1}, #{@argument2})"
+        when :priv then "#{side_str}h(#{@argument1})"
+        when :pub  then "#{side_str}a(#{@argument1})"
       end
     end
 
-    def is?(type, arg1, arg2=nil)
-      if type == :atk
-        @type == :atk && arg1 == @argument1 && arg2 == argument2
-      else
-        @type == type && arg1 == @argument1
-      end
+    def clone
+      Predicate.new(@type, @argument1, @argument2, @positive)
+    end
+
+    def negate
+      clone.negate!
+    end
+
+    def negate!
+      @positive = !@positive
+    end
+
+    def is?(type, arg1, arg2=nil, positive=true)
+      @type == type && arg1 == @argument1 && positive == @positive && (type == :atk ? arg2 == @argument2 : true)
     end
 
     def ==(o)
-      is?(o.type, o.argument1, o.argument2)
+      is?(o.type, o.argument1, o.argument2, o.positive)
     end
 
     def eql?(o)
@@ -35,11 +45,9 @@ module Arg2MOMDP
     end
 
     def hash
-      if @type == :atk
-        [@type, @argument1, @argument2].hash
-      else
-        [@type, @argument1].hash
-      end
+      arr = [@type, @argument1, @positive]
+      arr << @argument2 if @type == :atk
+      arr.hash
     end
   end
 end
