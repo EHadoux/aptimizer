@@ -21,13 +21,13 @@ RSpec.describe Arg2MOMDP::Alternative do
   end
 
   it "returns whether it modifies" do
-    m1 = double(:predicate => double(:is? => true))
-    m2 = double(:predicate => double(:is? => false))
+    m1 = double(:predicate => double(:== => true))
+    m2 = double(:predicate => double(:== => false))
     a = Arg2MOMDP::Alternative.new([m1, m2], 0.5)
-    expect(a.modifies?(nil, nil, nil)).to be_truthy
+    expect(a.modifies?(nil)).to be_truthy
     a = Arg2MOMDP::Alternative.new([m1], 0.5)
-    expect(a.modifies?(nil, nil, nil)).to be_truthy
+    expect(a.modifies?(nil)).to be_truthy
     a = Arg2MOMDP::Alternative.new([m2], 0.5)
-    expect(a.modifies?(nil, nil, nil)).to be_falsey
+    expect(a.modifies?(nil)).to be_falsey
   end
 end

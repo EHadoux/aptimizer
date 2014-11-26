@@ -35,8 +35,8 @@ RSpec.describe Arg2MOMDP::Rule do
     p1 = double(:to_s => "a(a)")
     p2 = double(:to_s => "e(a,b)")
     r  = Arg2MOMDP::Rule.new([p1,p2], [@a1])
-    expect(r.modifies?(nil, nil, nil)).to be_falsey
+    expect(r.modifies?(nil)).to be_falsey
     r  = Arg2MOMDP::Rule.new([p1,p2], [@a2, @a3])
-    expect(r.modifies?(nil, nil, nil)).to be_truthy
+    expect(r.modifies?(nil)).to be_truthy
   end
 end
