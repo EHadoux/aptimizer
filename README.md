@@ -1,6 +1,6 @@
 #arg2momdp
 
-[![Build Status](https://travis-ci.org/EHadoux/arg2momdp.svg)](https://travis-ci.org/EHadoux/arg2momdp) [![Code Climate](https://codeclimate.com/github/EHadoux/arg2momdp/badges/gpa.svg)](https://codeclimate.com/github/EHadoux/arg2momdp) [![Test Coverage](https://codeclimate.com/github/EHadoux/arg2momdp/badges/coverage.svg)](https://codeclimate.com/github/EHadoux/arg2momdp) [![Dependency Status](https://gemnasium.com/EHadoux/arg2momdp.svg)](https://gemnasium.com/EHadoux/arg2momdp)
+[![Build Status](https://travis-ci.org/EHadoux/arg2momdp.svg)](https://travis-ci.org/EHadoux/arg2momdp) [![Code Climate](https://codeclimate.com/github/EHadoux/arg2momdp/badges/gpa.svg)](https://codeclimate.com/github/EHadoux/arg2momdp) [![Test Coverage](https://codeclimate.com/github/EHadoux/arg2momdp/badges/coverage.svg)](https://codeclimate.com/github/EHadoux/arg2momdp) [![Dependency Status](https://gemnasium.com/EHadoux/arg2momdp.svg)](https://gemnasium.com/EHadoux/arg2momdp) [![Inline docs](http://inch-ci.org/github/EHadoux/arg2momdp.svg?branch=master)](http://inch-ci.org/github/EHadoux/arg2momdp)
 
 
 This gem parses and converts a probabilistic argumentation problem [1] to a Mixed-Observability Markov Decision Process (MOMDP) [2].
