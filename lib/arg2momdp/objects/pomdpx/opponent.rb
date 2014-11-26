@@ -14,7 +14,7 @@ module Arg2MOMDP
 
       def cut_flags
         rules.each_with_index do |r, i|
-          @flags << ["r#{i+1}", r.alternatives.size] unless r.alternatives.size == 1
+          @flags << i unless r.alternatives.size == 1
         end
       end
     end

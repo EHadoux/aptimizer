@@ -4,8 +4,8 @@ module Arg2MOMDP
       class << self
         def build_variables(xml, pomdpx)
           build_arguments(xml, pomdpx.agent, "1", true)
-          build_arguments(xml, pomdpx.public_state, "p", true)
-          build_attacks(xml, pomdpx.public_state)
+          build_arguments(xml, pomdpx.public_space, "p", true)
+          build_attacks(xml, pomdpx.public_space)
           build_arguments(xml, pomdpx.opponent, "2", false)
           build_flags(xml, pomdpx.opponent)
           build_actions(xml, pomdpx.agent)
@@ -31,8 +31,8 @@ module Arg2MOMDP
 
         def build_flags(xml, opponent)
           opponent.flags.each do |f|
-            xml.StateVar(:vnamePrev => f[0], :vnameCurr => "n#{f[0]}") {
-              xml.ValueEnum f[1].times.map {|i| "alt#{i+1}"}.join(" ")
+            xml.StateVar(:vnamePrev => "_r#{f+1}", :vnameCurr => "_nr#{f+1}") {
+              xml.ValueEnum opponent.rules[f].alternatives.size.times.map {|i| "alt#{i+1}"}.join(" ")
             }
           end
         end

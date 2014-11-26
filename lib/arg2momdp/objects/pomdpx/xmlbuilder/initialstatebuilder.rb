@@ -5,8 +5,8 @@ module Arg2MOMDP
       class << self
         def build_initial_state(xml, pomdpx)
           build_argument_initial_state(xml, pomdpx.agent, "1")
-          build_argument_initial_state(xml, pomdpx.public_state, "p")
-          build_attacks_initial_state(xml, pomdpx.public_state)
+          build_argument_initial_state(xml, pomdpx.public_space, "p")
+          build_attacks_initial_state(xml, pomdpx.public_space)
           build_opponent_argument_initial_state(xml, pomdpx.opponent)
           build_flags_initial_state(xml, pomdpx.opponent)
         end
@@ -32,10 +32,11 @@ module Arg2MOMDP
 
         def build_flags_initial_state(xml, opponent)
           opponent.flags.each do |f|
-            build_cond_prob(xml, f[0], "null", "-", opponent.rules[f[0][1..-1].to_i-1].alternatives.map {|a| a.probability}.join(" "))
+            build_cond_prob(xml, "_r#{f+1}", "null", "-", opponent.rules[f].alternatives.map {|a| a.probability}.join(" "))
           end
         end
       end
+      private_class_method :build_argument_initial_state, :build_attacks_initial_state, :build_opponent_argument_initial_state, :build_flags_initial_state
     end
   end
 end
