@@ -2,7 +2,7 @@ module Arg2MOMDP
   class Modifier
     attr_reader :type, :scope, :predicate
 
-    # Constructs a modifier on a [Predicate].
+    # Constructs a modifier on a {Predicate}.
     #
     # @param type [:add, :rem] Specifies if this modifier adds or removes a predicate
     # @param scope [:priv, :pub] Specifies if this modifier changes the private state or the public space
