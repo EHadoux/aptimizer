@@ -24,7 +24,7 @@ module Arg2MOMDP
       "#{@premisses.join(" & ")} => #{@alternatives.join(" | ")}"
     end
 
-    # Returns whether this rule can modify the predicate in parameter or not.
+    # Returns whether this rule modifies the predicate in parameter or not.
     #
     # @param pred [Predicate] The predicate to test if modified
     # @return [Boolean] true if the rule modifies, false otherwise

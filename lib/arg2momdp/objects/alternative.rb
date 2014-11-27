@@ -3,7 +3,7 @@ module Arg2MOMDP
     attr_reader :modifiers
     attr_accessor :probability
 
-    # Constructs an alternative for a [Rule].
+    # Constructs an alternative for a {Rule}.
     #
     # @param modifiers [Array<Modifier>] An array of modifiers
     # @param p [Fixnum] The probability of this alternative

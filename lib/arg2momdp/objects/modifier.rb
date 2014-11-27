@@ -39,7 +39,7 @@ module Arg2MOMDP
     #
     # @param instance ["*", true, false] The instance to test the modifier on
     #
-    # @return [Boolean] True if the modifier is compatible, false otherwise
+    # @return [Boolean] true if the modifier is compatible, false otherwise
     #
     # @raise [Error] if the instance is not "*", true or false
     def compatible?(instance)
