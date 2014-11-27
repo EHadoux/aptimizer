@@ -1,12 +1,13 @@
 module Arg2MOMDP
   class Rule
-    attr_accessor :premisses
-    attr_reader :alternatives
+    attr_reader :premisses, :alternatives
 
     # Constructs a rule.
     #
     # @params premisses [Array<Predicate>] The list of premisses
     # @params alternatives [Array<Alternative>] The list of the possible alternatives if the rule is fired
+    #
+    # @raise [Error] if the sum of the probabilities of the alternatives is not 1
     def initialize(premisses, alternatives)
       @premisses   = premisses
       @alternatives = alternatives
@@ -29,6 +30,21 @@ module Arg2MOMDP
     # @return [Boolean] true if the rule modifies, false otherwise
     def modifies?(pred)
       @alternatives.any? {|a| a.modifies?(pred)}
+    end
+
+    # Expands all the implicit premisses, i.e, the negative of the modified predicates.
+    # The rules are modified.
+    def expand_premisses!
+      set = Set.new
+      set.merge(r.premisses)
+      @alternatives.each do |alt|
+        alt.modifiers.each do |mod|
+          pred = (mod.type == :add) ? mod.predicate.negate : mod.predicate
+          raise "Cannot add contradictory premisse #{pred} in rule #{rule}" if set.include?(pred.negate)
+          set.add(pred)
+        end
+      end
+      @premisses = set.to_a
     end
   end
 end
