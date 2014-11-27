@@ -38,6 +38,15 @@ RSpec.describe Arg2MOMDP::Predicate do
     expect(p2.positive).to eq(pos2)
   end
 
+  it "properly unside" do
+    p = Arg2MOMDP::Predicate.new(:priv, 'a')
+    p2 = Arg2MOMDP::Predicate.new(:priv, 'a', nil, false)
+    expect(p.unsided.positive).to be_truthy
+    expect(p.positive).to be_truthy
+    expect(p2.unsided.positive).to be_truthy
+    expect(p2.positive).to be_falsey
+  end
+
   context "Attack" do
     it "shows the right predicate" do
       p = Arg2MOMDP::Predicate.new(:atk, 'a', 'b')

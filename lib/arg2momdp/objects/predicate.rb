@@ -32,6 +32,12 @@ module Arg2MOMDP
       @positive = !@positive
     end
 
+    def unsided
+      p = clone
+      p.negate! unless @positive
+      return p
+    end
+
     def is?(type, arg1, arg2=nil, positive=true)
       @type == type && arg1 == @argument1 && positive == @positive && (type == :atk ? arg2 == @argument2 : true)
     end
