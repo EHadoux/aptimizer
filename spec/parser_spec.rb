@@ -1,5 +1,5 @@
-require 'arg2momdp'
-require 'spec_helper'
+require "arg2momdp"
+require "spec_helper"
 
 RSpec.describe Arg2MOMDP::Parser do
   context "Argument" do

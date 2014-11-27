@@ -25,9 +25,6 @@ module Arg2MOMDP
           }
         end.to_xml
       end
-
-      private
-      
     end
   end
 end

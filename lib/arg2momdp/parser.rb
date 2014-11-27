@@ -18,7 +18,12 @@ module Arg2MOMDP
     production(:rule, "premisses IMPLIES alternatives") { |p, _, c| Rule.new(p,c) }
     nonempty_list(:rules, :rule, :COMMA)
 
-    nonempty_list(:premisses, :predicate, :AND)
+    nonempty_list(:premisses, :negablepredicate, :AND)
+    production(:negablepredicate) do
+      clause("predicate")     { |p| p            }
+      clause("NOT predicate") { |_, p| p.negate! }
+    end
+
     production(:predicate) do
       clause("PRIV ARG RP") { |_, a, _| Predicate.new(:priv, a) }
       clause("PUB ARG RP")  { |_, a, _| Predicate.new(:pub, a) }
