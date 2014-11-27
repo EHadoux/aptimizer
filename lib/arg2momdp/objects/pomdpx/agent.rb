@@ -8,13 +8,16 @@ module Arg2MOMDP
       # @param arguments [Array<String>] The list of arguments
       # @param rules [Array<Rule>] The list of rules
       # @param initial_state [Array<Predicate>] The initial state of the problem
-      # @param action_names [Array<String>] A list of names to replace rule number
-      def initialize(arguments, rules, initial_state, action_names=[])
+      # @param action_names [Array<String>] A list of names to replace rule number (default "a0".."a#{num_of_actions}")
+      #
+      # @raise [Error] If the length of the list of names is different from the numbre of actions
+      def initialize(arguments, rules, initial_state, action_names=nil)
         @arguments     = arguments
         @actions       = []
         @initial_state = Hash.new(false)
-        @action_names  = action_names
         extract_actions!(rules)
+        @action_names  = action_names || (0..@actions.size-1).map {|i| "a#{i}"}
+        raise "Number of actions and names are different." unless @actions.size == @action_names.size
         filter_initial_state!(initial_state)
       end
 
