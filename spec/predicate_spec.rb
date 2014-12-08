@@ -1,5 +1,4 @@
 require "arg2momdp"
-require "spec_helper"
 
 RSpec.describe Arg2MOMDP::Predicate do
   it "raises en error if the type is unknown" do

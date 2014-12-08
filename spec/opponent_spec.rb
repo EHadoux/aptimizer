@@ -1,5 +1,4 @@
 require "arg2momdp"
-require "spec_helper"
 
 RSpec.describe Arg2MOMDP::POMDPX::Opponent do
   it "gives 0 flag with 1 rule 1 alternative" do

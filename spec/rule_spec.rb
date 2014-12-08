@@ -1,5 +1,4 @@
 require "arg2momdp"
-require "spec_helper"
 
 RSpec.describe Arg2MOMDP::Rule do
   before(:each) do

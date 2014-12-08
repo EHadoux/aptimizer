@@ -1,5 +1,4 @@
 require "arg2momdp"
-require "spec_helper"
 
 RSpec.describe Arg2MOMDP::Alternative do
   it "has a default probability" do

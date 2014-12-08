@@ -1,5 +1,4 @@
 require "arg2momdp"
-require "spec_helper"
 
 RSpec.describe Arg2MOMDP::Modifier do
   it "raises an error if the scope is unknown" do
