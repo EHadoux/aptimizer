@@ -12,7 +12,7 @@ module Arg2MOMDP
 
     nonempty_list(:args, :ARG, :COMMA)
 
-    production(:atk, "ATK ARG COMMA ARG RP") { |_, a, _, b, _| Predicate.new(:atk, a, b) }
+    production(:atk, "ATK ARG COMMA ARG RP") { |_, a, _, b, _| Predicate.new(:atk, a, arg2:b) }
     nonempty_list(:atks, :atk, :COMMA)
 
     production(:rule, "premisses IMPLIES alternatives") { |p, _, c| Rule.new(p,c) }
