@@ -18,7 +18,7 @@ module Arg2MOMDP
             raise "Predicate on unknown argument: #{p}" unless @arguments.include? p.argument1
             @initial_state[p.argument1] = true
           elsif p.type == :atk
-            unless @arguments.include?(p.argument1) && @arguments.include?(p.argument2)
+            unless @arguments.include?(p.argument1) && @arguments.include?(p.argument2) && @attacks.include?(p)
               raise "Predicate on unknown argument: #{p}"
             end
             @initial_state["#{p.argument1}_#{p.argument2}"] = true

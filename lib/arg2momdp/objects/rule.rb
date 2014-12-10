@@ -15,6 +15,8 @@ module Arg2MOMDP
       if (sum = @alternatives.reduce(0) {|sum, c| sum + c.probability}) != 1.0
         raise "Sum of alternatives probabilities != 1.0: sum = #{sum}"
       end
+
+      expand_premisses
     end
 
     # Returns a readable version of the rule.
@@ -24,23 +26,17 @@ module Arg2MOMDP
       "#{@premisses.join(" & ")} => #{@alternatives.join(" | ")}"
     end
 
-    # Returns whether this rule modifies the predicate in parameter or not.
-    #
-    # @param pred [Predicate] The predicate to test if modified
-    # @return [Boolean] true if the rule modifies, false otherwise
-    def modifies?(pred)
-      @alternatives.any? {|a| a.modifies?(pred)}
-    end
+    private
 
-    # Expands all the implicit premisses, i.e, the negative of the modified predicates.
-    # The rules are modified.
-    def expand_premisses!
+    # Expands all the implicit premisses, i.e, the negation of the modified predicates.
+    # The rule is modified.
+    def expand_premisses
       set = Set.new
-      set.merge(r.premisses)
+      set.merge(@premisses)
       @alternatives.each do |alt|
         alt.modifiers.each do |mod|
           pred = (mod.type == :add) ? mod.predicate.negate : mod.predicate
-          raise "Cannot add contradictory premisse #{pred} in rule #{rule}" if set.include?(pred.negate)
+          raise "Cannot add contradictory premisse #{pred}" if set.include?(pred.negate)
           set.add(pred)
         end
       end

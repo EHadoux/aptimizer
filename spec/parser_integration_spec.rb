@@ -8,11 +8,11 @@ RSpec.describe do
     goals     = "g(a)"
     initial   = "a(a) & a(b) & a(c) & a(d) & a(e)"
     rules1    = "h(a) => 1.0: +a(a),
-              h(b) & a(f) & h(c) & e(b,f) & e(c,f) => 0.5: +a(b) & +e(b,f) | 0.5: +a(c) & +e(c,f),
-              h(d) & a(g) & h(e) & e(d,g) & e(e,g) => 0.8: +a(e) & +e(e,g) | 0.2: +a(d) & +e(d,g)"
-    rules2    = "h(h) & a(b) & e(h,b) => 1.0: +a(h) & +e(h,b),
-              h(g) & a(c) & e(g,c) => 1.0: +a(g) & +e(g,c),
-              a(a) & h(f) & h(g) & e(f,a) => 0.8: +a(f) & +e(f,a) | 0.2: +a(g) & +e(g,a)"
+                 h(b) & a(f) & h(c) & !e(b,f) & !e(c,f) => 0.5: +a(b) & +e(b,f) | 0.5: +a(c) & +e(c,f),
+                 h(d) & a(g) & h(e) & !e(d,g) & !e(e,g) => 0.8: +a(e) & +e(e,g) | 0.2: +a(d) & +e(d,g)"
+    rules2    = "h(h) & a(b) & !e(h,b) => 1.0: +a(h) & +e(h,b),
+                 h(g) & a(c) & !e(g,c) => 1.0: +a(g) & +e(g,c),
+                 a(a) & h(f) & h(g) & !e(f,a) => 0.8: +a(f) & +e(f,a) | 0.2: +a(g) & +e(g,a)"
 
     argarr = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer.lex(arguments))
     atkarr = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer.lex(attacks))

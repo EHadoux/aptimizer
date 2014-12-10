@@ -29,24 +29,6 @@ module Arg2MOMDP
           when :pub then "#{pred.argument1}p"
         end
       end
-
-      # Merges all the UNSIDED premisses of the rules set in parameter that modify the predicate in parameter.
-      #
-      # @param rules [Array<Rule>] The rules to merge the UNSIDED premisses from
-      # @param pred [Predicate] The predicate that is modified
-      #
-      # @return [Set<Predicate>, Array<Fixnum>] The set of merged premisses and the indexes of the rules modifying
-      def cross_rules_premisses_with_index(rules, pred)
-        set            = Set.new
-        rule_index_arr = []
-        rules.each_with_index do |r, i|
-          if r.modifies?(pred)
-            set.merge(r.premisses.map {|p| p.unsided})
-            rule_index_arr << i
-          end
-        end
-        return [set, rule_index_arr]
-      end
     end
   end
 end

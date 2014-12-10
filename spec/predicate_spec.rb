@@ -23,7 +23,7 @@ RSpec.describe Arg2MOMDP::Predicate do
   end
 
   it "properly clones" do
-    p = Arg2MOMDP::Predicate.new(:priv, 'a')
+    p  = Arg2MOMDP::Predicate.new(:priv, 'a')
     p2 = p.clone
     expect(p.type).to eq(p2.type)
     expect(p.argument1).to eq(p2.argument1)
@@ -34,9 +34,9 @@ RSpec.describe Arg2MOMDP::Predicate do
   end
 
   it "properly negates" do
-    p = Arg2MOMDP::Predicate.new(:priv, 'a')
-    pos = p.positive
-    p2 = Arg2MOMDP::Predicate.new(:priv, 'a')
+    p    = Arg2MOMDP::Predicate.new(:priv, 'a')
+    pos  = p.positive
+    p2   = Arg2MOMDP::Predicate.new(:priv, 'a')
     pos2 = p2.positive
     p.negate!
     p2.negate
@@ -45,7 +45,7 @@ RSpec.describe Arg2MOMDP::Predicate do
   end
 
   it "properly unside" do
-    p = Arg2MOMDP::Predicate.new(:priv, 'a')
+    p  = Arg2MOMDP::Predicate.new(:priv, 'a')
     p2 = Arg2MOMDP::Predicate.new(:priv, 'a', positive:false)
     expect(p.unsided.positive).to be_truthy
     expect(p.positive).to be_truthy
@@ -80,7 +80,7 @@ RSpec.describe Arg2MOMDP::Predicate do
     end
 
     it "properly equals" do
-      p = Arg2MOMDP::Predicate.new(:atk, 'a', arg2:'b')
+      p  = Arg2MOMDP::Predicate.new(:atk, 'a', arg2:'b')
       p2 = Arg2MOMDP::Predicate.new(:atk, 'a', arg2:'b')
       p3 = Arg2MOMDP::Predicate.new(:atk, 'a', arg2:'c')
       p4 = Arg2MOMDP::Predicate.new(:atk, 'a', arg2:'b', positive:false)
@@ -93,7 +93,7 @@ RSpec.describe Arg2MOMDP::Predicate do
     end
 
     it "properly calculate hash" do
-      p = Arg2MOMDP::Predicate.new(:atk, 'a', arg2:'b')
+      p  = Arg2MOMDP::Predicate.new(:atk, 'a', arg2:'b')
       p2 = Arg2MOMDP::Predicate.new(:atk, 'a', arg2:'b')
       p3 = Arg2MOMDP::Predicate.new(:atk, 'a', arg2:'b', positive:false)
       expect(p.hash).to eq(p2.hash)
@@ -126,7 +126,7 @@ RSpec.describe Arg2MOMDP::Predicate do
     end
 
     it "properly equals" do
-      p = Arg2MOMDP::Predicate.new(:pub, 'a', arg2:'b')
+      p  = Arg2MOMDP::Predicate.new(:pub, 'a', arg2:'b')
       p2 = Arg2MOMDP::Predicate.new(:pub, 'a', arg2:'c')
       p3 = Arg2MOMDP::Predicate.new(:pub, 'b', arg2:'b')
       p4 = Arg2MOMDP::Predicate.new(:pub, 'a', arg2:'b', positive:false)
@@ -139,7 +139,7 @@ RSpec.describe Arg2MOMDP::Predicate do
     end
 
     it "properly calculate hash" do
-      p = Arg2MOMDP::Predicate.new(:pub, 'a', arg2:'b')
+      p  = Arg2MOMDP::Predicate.new(:pub, 'a', arg2:'b')
       p2 = Arg2MOMDP::Predicate.new(:pub, 'a', arg2:'c')
       p3 = Arg2MOMDP::Predicate.new(:pub, 'a', arg2:'b', positive:false)
       expect(p.hash).to eq(p2.hash)
@@ -172,7 +172,7 @@ RSpec.describe Arg2MOMDP::Predicate do
     end
 
     it "properly equals" do
-      p = Arg2MOMDP::Predicate.new(:priv, 'a', arg2:'b')
+      p  = Arg2MOMDP::Predicate.new(:priv, 'a', arg2:'b')
       p2 = Arg2MOMDP::Predicate.new(:priv, 'a', arg2:'c')
       p3 = Arg2MOMDP::Predicate.new(:atk, 'b', arg2:'b')
       p4 = Arg2MOMDP::Predicate.new(:priv, 'a', arg2:'b', positive:false)
@@ -185,7 +185,7 @@ RSpec.describe Arg2MOMDP::Predicate do
     end
 
     it "properly calculate hash" do
-      p = Arg2MOMDP::Predicate.new(:priv, 'a', arg2:'b')
+      p  = Arg2MOMDP::Predicate.new(:priv, 'a', arg2:'b')
       p2 = Arg2MOMDP::Predicate.new(:priv, 'a', arg2:'c')
       p3 = Arg2MOMDP::Predicate.new(:priv, 'a', arg2:'b', positive:false)
       expect(p.hash).to eq(p2.hash)

@@ -10,13 +10,13 @@ RSpec.describe Arg2MOMDP::Modifier do
   end
 
   it "raises an error if the predicate is negative" do
-    p = double(:positive => false)
+    p = instance_double("Predicate", :positive => false)
     expect {Arg2MOMDP::Modifier.new(:add, :pub, p)}.to raise_error
   end
 
   it "checks the compatibility with an instance" do
-    pospred = double(:positive => true, :type => :pub)
-    mod = Arg2MOMDP::Modifier.new(:add, :pub, pospred)
+    pospred = instance_double("Predicate", :positive => true, :type => :pub)
+    mod     = Arg2MOMDP::Modifier.new(:add, :pub, pospred)
     expect {mod.compatible?(1)}.to raise_error
     expect(mod.compatible?("")).to be_falsey
     expect(mod.compatible?("*")).to be_truthy
@@ -31,7 +31,7 @@ RSpec.describe Arg2MOMDP::Modifier do
 
   context "Public" do
     before(:each) do
-      @pred_pub = double(:type => :pub, :to_s => "a(a)", :positive => true)
+      @pred_pub = instance_double("Predicate", :type => :pub, :to_s => "a(a)", :positive => true)
     end
 
     it "raises an error if the scope is private and the predicate public" do
@@ -48,8 +48,8 @@ RSpec.describe Arg2MOMDP::Modifier do
 
   context "Private" do
     before(:each) do
-      @pred_priv = double(:type => :priv, :to_s => "h(a)", :positive => true)
-      @pred_atk  = double(:type => :atk, :to_s => "e(a, b)", :positive => true)
+      @pred_priv = instance_double("Predicate", :type => :priv, :to_s => "h(a)", :positive => true)
+      @pred_atk  = instance_double("Predicate", :type => :atk, :to_s => "e(a, b)", :positive => true)
     end
 
     it "raises an error if the scope is public and the predicate private" do
