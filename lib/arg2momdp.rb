@@ -17,5 +17,7 @@ module Arg2MOMDP
     autoload :Helpers,             "arg2momdp/objects/pomdpx/xmlbuilder/xmlhelper"
     autoload :VariableBuilder,     "arg2momdp/objects/pomdpx/xmlbuilder/variablebuilder"
     autoload :InitialStateBuilder, "arg2momdp/objects/pomdpx/xmlbuilder/initialstatebuilder"
+    autoload :TransitionBuilder,   "arg2momdp/objects/pomdpx/xmlbuilder/transitionbuilder"
+    autoload :RewardBuilder,       "arg2momdp/objects/pomdpx/xmlbuilder/rewardbuilder"
   end
 end

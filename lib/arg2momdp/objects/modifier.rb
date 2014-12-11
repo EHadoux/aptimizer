@@ -31,25 +31,5 @@ module Arg2MOMDP
     def to_s
       "#{"." if @scope == :priv}#{(@type == :add) ? "+" : "-"}#{@predicate}"
     end
-
-    # Returns whether the modifier is compatible with an instance of predicate.
-    # If the instance is "*", all modifiers are compatible.
-    # If the instance is true, the modifier type can only be :rem as it cannot add an already present predicate.
-    # It is the opposite for false.
-    #
-    # @param instance ["*", true, false] The instance to test the modifier on
-    #
-    # @return [Boolean] true if the modifier is compatible, false otherwise
-    #
-    # @raise [Error] if the instance is not "*", true or false
-    def compatible?(instance)
-      if instance.is_a?(String)
-        return true if instance == "*"
-      elsif !!instance == instance
-        return (@type == :add && !instance) || (@type == :rem && instance)
-      else
-        raise "Can only test with *, true or false"
-      end
-    end
   end
 end
