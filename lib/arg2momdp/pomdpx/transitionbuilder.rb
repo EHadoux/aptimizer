@@ -6,12 +6,12 @@ module Arg2MOMDP
         # Need to optimize all those methods as several things are evaluated multiple times (like compatibility).
         # In a further version obviously.
 
-        def build_transitions(xml, pomdpx)
-          build_flags_transitions(xml, pomdpx.opponent)
-          modified_by = get_modifying_rules(pomdpx.agent, pomdpx.opponent)
-          build_non_modified_predicates(xml, pomdpx, modified_by)
-          build_agent_private_transitions(xml, pomdpx.agent, modified_by)
-          build_public_argument_transitions(xml, pomdpx.agent, pomdpx.opponent, modified_by)
+        def build_transitions(xml, pomdp)
+          build_flags_transitions(xml, pomdp.opponent)
+          modified_by = get_modifying_rules(pomdp.agent, pomdp.opponent)
+          build_non_modified_predicates(xml, pomdp, modified_by)
+          build_agent_private_transitions(xml, pomdp.agent, modified_by)
+          build_public_argument_transitions(xml, pomdp.agent, pomdp.opponent, modified_by)
         end
 
         def build_flags_transitions(xml, opponent)

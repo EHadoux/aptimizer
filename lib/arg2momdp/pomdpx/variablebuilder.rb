@@ -2,13 +2,13 @@ module Arg2MOMDP
   module POMDPX
     class VariableBuilder
       class << self
-        def build_variables(xml, pomdpx)
-          build_arguments(xml, pomdpx.agent, "1", true)
-          build_arguments(xml, pomdpx.public_space, "p", true)
-          build_attacks(xml, pomdpx.public_space)
-          build_arguments(xml, pomdpx.opponent, "2", false)
-          build_flags(xml, pomdpx.opponent)
-          build_actions(xml, pomdpx.agent)
+        def build_variables(xml, pomdp)
+          build_arguments(xml, pomdp.agent, "1", true)
+          build_arguments(xml, pomdp.public_space, "p", true)
+          build_attacks(xml, pomdp.public_space)
+          build_arguments(xml, pomdp.opponent, "2", false)
+          build_flags(xml, pomdp.opponent)
+          build_actions(xml, pomdp.agent)
           xml.RewardVar(:vname => "reward")
         end
 

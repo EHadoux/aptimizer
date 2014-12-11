@@ -3,12 +3,12 @@ module Arg2MOMDP
     class InitialStateBuilder
       extend Helpers
       class << self
-        def build_initial_state(xml, pomdpx)
-          build_argument_initial_state(xml, pomdpx.agent, "1")
-          build_argument_initial_state(xml, pomdpx.public_space, "p")
-          build_attacks_initial_state(xml, pomdpx.public_space)
-          build_opponent_argument_initial_state(xml, pomdpx.opponent)
-          build_flags_initial_state(xml, pomdpx.opponent)
+        def build_initial_state(xml, pomdp)
+          build_argument_initial_state(xml, pomdp.agent, "1")
+          build_argument_initial_state(xml, pomdp.public_space, "p")
+          build_attacks_initial_state(xml, pomdp.public_space)
+          build_opponent_argument_initial_state(xml, pomdp.opponent)
+          build_flags_initial_state(xml, pomdp.opponent)
         end
 
         def build_argument_initial_state(xml, agent, suffix)

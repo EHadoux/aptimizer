@@ -7,17 +7,17 @@ module Arg2MOMDP
   autoload :Modifier,    "arg2momdp/objects/modifier"
   autoload :Predicate,   "arg2momdp/objects/predicate"
   autoload :Rule,        "arg2momdp/objects/rule"
+  autoload :POMDP,       "arg2momdp/objects/pomdp"
+  autoload :Agent,       "arg2momdp/objects/agent"
+  autoload :Opponent,    "arg2momdp/objects/opponent"
+  autoload :PublicSpace, "arg2momdp/objects/public_space"
 
   module POMDPX
-    autoload :XMLBuilder,          "arg2momdp/xmlbuilder"
-    autoload :POMDPX,              "arg2momdp/objects/pomdpx/pomdpx"
-    autoload :Agent,               "arg2momdp/objects/pomdpx/agent"
-    autoload :Opponent,            "arg2momdp/objects/pomdpx/opponent"
-    autoload :PublicSpace,         "arg2momdp/objects/pomdpx/public_space"
-    autoload :Helpers,             "arg2momdp/objects/pomdpx/xmlbuilder/xmlhelper"
-    autoload :VariableBuilder,     "arg2momdp/objects/pomdpx/xmlbuilder/variablebuilder"
-    autoload :InitialStateBuilder, "arg2momdp/objects/pomdpx/xmlbuilder/initialstatebuilder"
-    autoload :TransitionBuilder,   "arg2momdp/objects/pomdpx/xmlbuilder/transitionbuilder"
-    autoload :RewardBuilder,       "arg2momdp/objects/pomdpx/xmlbuilder/rewardbuilder"
+    autoload :XMLBuilder,          "arg2momdp/pomdpx/xmlbuilder"
+    autoload :Helpers,             "arg2momdp/pomdpx/xmlhelpers"
+    autoload :VariableBuilder,     "arg2momdp/pomdpx/variablebuilder"
+    autoload :InitialStateBuilder, "arg2momdp/pomdpx/initialstatebuilder"
+    autoload :TransitionBuilder,   "arg2momdp/pomdpx/transitionbuilder"
+    autoload :RewardBuilder,       "arg2momdp/pomdpx/rewardbuilder"
   end
 end

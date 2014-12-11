@@ -26,6 +26,10 @@ module Arg2MOMDP
       "#{@premisses.join(" & ")} => #{@alternatives.join(" | ")}"
     end
 
+    def compatible?(premisses)
+      return premisses.none?{ |p| @premisses.include?(p.negate) }
+    end
+
     private
 
     # Expands all the implicit premisses, i.e, the negation of the modified predicates.
