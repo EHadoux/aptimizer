@@ -1,4 +1,4 @@
-#arg2momdp
+#arg2momdp [![DOI](https://zenodo.org/badge/7153/EHadoux/arg2momdp.svg)](http://dx.doi.org/10.5281/zenodo.13195)
 
 [![Build Status](https://img.shields.io/travis/EHadoux/arg2momdp.svg?branch=master&style=flat-square)](https://travis-ci.org/EHadoux/arg2momdp) [![Code Climate](https://img.shields.io/codeclimate/github/EHadoux/arg2momdp.svg?style=flat-square)](https://codeclimate.com/github/EHadoux/arg2momdp) [![Test Coverage](https://img.shields.io/codeclimate/coverage/github/EHadoux/arg2momdp.svg?style=flat-square)](https://codeclimate.com/github/EHadoux/arg2momdp) [![Dependency Status](https://img.shields.io/gemnasium/EHadoux/arg2momdp.svg?style=flat-square)](https://gemnasium.com/EHadoux/arg2momdp) [![Inline docs](http://inch-ci.org/github/EHadoux/arg2momdp.svg?branch=master&style=flat-square)](http://inch-ci.org/github/EHadoux/arg2momdp) [![Yard Docs](http://img.shields.io/badge/yard-docs-blue.svg?style=flat-square)](http://rubydoc.info/github/EHadoux/arg2momdp/master)
 
