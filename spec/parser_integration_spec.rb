@@ -1,5 +1,4 @@
 require "arg2momdp"
-require "spec_helper"
 
 RSpec.describe do
   it "properly parses the example" do

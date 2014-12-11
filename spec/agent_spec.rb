@@ -50,8 +50,8 @@ RSpec.describe Arg2MOMDP::POMDPX::Agent do
                                                            :modifiers => [])])
     agent = Arg2MOMDP::POMDPX::Agent.new(%w(a b c), [r1, r2], [])
     expect(agent.action_names).to eq(%w(a0 a1 a2))
-    agent = Arg2MOMDP::POMDPX::Agent.new(%w(a b c), [r1, r2], [], %w(adda addb addc))
+    agent = Arg2MOMDP::POMDPX::Agent.new(%w(a b c), [r1, r2], [], [[],[]], %w(adda addb addc))
     expect(agent.action_names).to eq(%w(adda addb addc))
-    expect { Arg2MOMDP::POMDPX::Agent.new(%w(a b c), [r1, r2], [], %w(adda addb)) }.to raise_error
+    expect { Arg2MOMDP::POMDPX::Agent.new(%w(a b c), [r1, r2], [], [[],[]], %w(adda addb)) }.to raise_error
   end
 end

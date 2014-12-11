@@ -31,7 +31,7 @@ module Arg2MOMDP
 
         def build_flags(xml, opponent)
           opponent.flags.each do |f|
-            xml.StateVar(:vnamePrev => "_r#{f+1}", :vnameCurr => "_nr#{f+1}") {
+            xml.StateVar(:vnamePrev => "_r#{f+1}", :vnameCurr => "_nr#{f+1}", :fullyObs => "false") {
               xml.ValueEnum opponent.rules[f].alternatives.size.times.map {|i| "alt#{i+1}"}.join(" ")
             }
           end

@@ -35,8 +35,24 @@ module Arg2MOMDP
             build_cond_prob(xml, "_r#{f+1}", "null", "-", opponent.rules[f].alternatives.map {|a| a.probability}.join(" "))
           end
         end
+
+        def build_cond_prob(xml, var, parent, *instances)
+          xml.CondProb {
+            xml.Var var
+            xml.Parent parent
+            xml.Parameter(:type => "TBL") {
+              instances.each_slice(2) do |i, p|
+                xml.Entry {
+                  xml.Instance i
+                  xml.ProbTable p
+                }
+              end
+            }
+          }
+        end
       end
-      private_class_method :build_argument_initial_state, :build_attacks_initial_state, :build_opponent_argument_initial_state, :build_flags_initial_state
+      private_class_method :build_argument_initial_state, :build_attacks_initial_state,
+                           :build_opponent_argument_initial_state, :build_flags_initial_state, :build_cond_prob
     end
   end
 end
