@@ -11,6 +11,7 @@ module Arg2MOMDP
   autoload :Agent,       "arg2momdp/objects/agent"
   autoload :Opponent,    "arg2momdp/objects/opponent"
   autoload :PublicSpace, "arg2momdp/objects/public_space"
+  autoload :Optimizer,   "arg2momdp/objects/optimizer"
 
   module POMDPX
     autoload :XMLBuilder,          "arg2momdp/pomdpx/xmlbuilder"

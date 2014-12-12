@@ -1,3 +1,3 @@
 module Arg2MOMDP
-  VERSION = "1.0a1"
+  VERSION = "1.1"
 end

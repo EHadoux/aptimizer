@@ -1,6 +1,7 @@
 module Arg2MOMDP
   class Opponent
-    attr_reader :arguments, :rules, :flags
+    attr_reader :rules, :flags
+    attr_accessor :arguments
 
     # Constructs the opponent.
     #

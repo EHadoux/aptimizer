@@ -40,6 +40,7 @@ RSpec.describe "Integration" do
       public_space = Arg2MOMDP::PublicSpace.new(argarr, atkarr, initarr)
 
       pomdp = Arg2MOMDP::POMDP.new(0.9, agent, opponent, public_space)
+      Arg2MOMDP::Optimizer.optimize(pomdp, :agent_args, :opp_args)
 
       puts Arg2MOMDP::POMDPX::XMLBuilder.new(1, "argumentation", pomdp).build_pomdpx
     end

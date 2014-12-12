@@ -12,9 +12,11 @@ module Arg2MOMDP
       end
 
       def build_pomdpx(*parts)
-        parts = [:var, :init, :transitions, :reward] if parts.empty?
+        flags_list = [:var, :init, :transitions, :reward]
+        f = (parts - flags_list) and (raise "Unknown flags :#{f}" unless f.empty?)
+        parts = flags_list if parts.empty?
         Nokogiri::XML::Builder.new(:encoding => "ISO-8859-1") do |xml|
-          xml.pomdp(:version => @version, :id => @id, 'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema-instance",
+          xml.pomdpx(:version => @version, :id => @id, 'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema-instance",
           'xsi:noNamespaceSchemaLocation' => "pomdpx.xsd") {
             xml.Discount @pomdp.discount
             if parts.include?(:var)

@@ -1,7 +1,8 @@
 module Arg2MOMDP
   class Agent
-    attr_reader :arguments, :actions, :initial_state, :action_names, :goals
-
+    attr_reader :actions, :initial_state, :action_names, :goals
+    attr_accessor :arguments
+    alias :rules :actions
     # Constructs the agent to optimize.
     #
     # @param arguments [Array<String>] The list of arguments

@@ -21,7 +21,7 @@ module Arg2MOMDP
         end
 
         def build_agent_private_transitions(xml, agent, modification_hash)
-          modification_hash.lazy.select {|p| p[0].type == :priv && !p[1][0].empty? }.each do |pred, actions_arr|
+          modification_hash.lazy.select {|p| p[0].type == :priv && p[0].owner == 1 && !p[1][0].empty? }.each do |pred, actions_arr|
             build_agent_side_transitions(xml, agent, pred, actions_arr[0])
             actions_arr[0] = []
             modification_hash[pred] = actions_arr
@@ -153,7 +153,7 @@ module Arg2MOMDP
           end
 
           pomdpx.opponent.arguments.each do |arg|
-            pred     = Predicate.new(:priv, arg)
+            pred     = Predicate.new(:priv, arg, owner:2)
             str_name = convert_string(pred)
             build_cond_prob(xml, "n#{str_name}", "action #{str_name}", "* - -", "identity") unless modification_hash.has_key?(pred) && !modification_hash[pred][1].empty?
           end
