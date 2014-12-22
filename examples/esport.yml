@@ -1,0 +1,55 @@
+title: esport
+
+version: 1
+
+discount: 0.9
+
+arguments: [a, b, c, d, e, f, g, h]
+
+attacks:
+ - e(f,a)
+ - e(g,a)
+ - e(b,f)
+ - e(c,f)
+ - e(g,c)
+ - e(d,g)
+ - e(e,g)
+ - e(h,b)
+
+agent:
+ - premises: h(a)
+   claims:
+   - "1.0: +a(a)"
+
+ - premises: "h(b) & a(f) & h(c) & !e(b,f) & !e(c,f)"
+   claims:
+   - "0.5: +a(b) & +e(b,f)"
+   - "0.5: +a(c) & +e(c,f)"
+
+ - premises: "h(d) & a(g) & h(e) & !e(d,g) & !e(e,g)"
+   claims:
+   - "0.8: +a(e) & +e(e,g)"
+   - "0.2: +a(d) & +e(d,g)"
+
+opponent:
+ - premises: "h(h) & a(b) & !e(h,b)"
+   claims:
+   - "1.0: +a(h) & +e(h,b)"
+ - premises: "h(g) & a(c) & !e(g,c)"
+   claims:
+   - "1.0: +a(g) & +e(g,c)"
+ - premises: "a(a) & h(f) & h(g) & !e(f,a) & !e(g,a)"
+   claims:
+   - "0.8: +a(f) & +e(f,a)"
+   - "0.2: +a(g) & +e(g,a)"
+
+initial: "h(a) & h(b) & h(c) & h(d) & h(e)"
+
+goals: g(a)
+
+action_names:
+ - adda
+ - addb
+ - addc
+ - adde
+ - addd

@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+require "arg2momdp"
+require "yaml"
+
+if ARGV.size != 1
+  puts "Usage: arg2momdp problem.yml"
+  exit
+end
+
+yaml = YAML.load_file(ARGV[0])
+argarr   = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer.lex(yaml["arguments"].join(",")))
+atkarr   = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer.lex(yaml["attacks"].join(",")))
+r1arr    = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer.lex(yaml["agent"].map{|r| "#{r["premises"]} => #{r["claims"].join("|")}"}.join(",")))
+r2arr    = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer.lex(yaml["opponent"].map{|r| "#{r["premises"]} => #{r["claims"].join("|")}"}.join(",")))
+initarr  = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer.lex(yaml["initial"]))
+actarr   = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer.lex(yaml["action_names"].join(",")))
+goalsarr = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer.lex(yaml["goals"]))
+
+agent        = Arg2MOMDP::Agent.new(argarr, r1arr, initarr, goalsarr, actarr)
+opponent     = Arg2MOMDP::Opponent.new(argarr, r2arr)
+public_space = Arg2MOMDP::PublicSpace.new(argarr, atkarr, initarr)
+pomdp        = Arg2MOMDP::POMDP.new(yaml["discount"], agent, opponent, public_space)
+Arg2MOMDP::Optimizer.optimize(pomdp)
+
+puts Arg2MOMDP::POMDPX::XMLBuilder.new(yaml["version"], yaml["title"], pomdp).build_pomdpx
