@@ -15,10 +15,10 @@ module Arg2MOMDP
     production(:atk, "ATK ARG COMMA ARG RP") { |_, a, _, b, _| Predicate.new(:atk, a, arg2:b) }
     nonempty_list(:atks, :atk, :COMMA)
 
-    production(:rule, "premisses IMPLIES alternatives") { |p, _, c| Rule.new(p,c) }
+    production(:rule, "premises IMPLIES alternatives") { |p, _, c| Rule.new(p,c) }
     nonempty_list(:rules, :rule, :COMMA)
 
-    nonempty_list(:premisses, :negablepredicate, :AND)
+    nonempty_list(:premises, :negablepredicate, :AND)
     production(:negablepredicate) do
       clause("predicate")     { |p| p            }
       clause("NOT predicate") { |_, p| p.negate! }

@@ -20,14 +20,14 @@ RSpec.describe Arg2MOMDP::Agent do
   end
 
   it "properly defines actions" do
-    r1 = instance_double("Rule", :premisses => [],
+    r1 = instance_double("Rule", :premises => [],
                          :alternatives => [instance_double("Alternative", :to_s => "+a(a) & +e(a,b)",
                                                            :probability => 1.0, :probability= => 1.0,
                                                            :modifiers => []),
                                            instance_double("Alternative", :to_s => "-h(a) & -h(c)",
                                                            :probability => 1.0, :probability= => 1.0,
                                                            :modifiers => [])])
-    r2 = instance_double("Rule", :premisses => [],
+    r2 = instance_double("Rule", :premises => [],
                          :alternatives => [instance_double("Alternative", :to_s => "-a(a)",
                                                            :probability => 1.0, :probability= => 1.0,
                                                            :modifiers => [])])
@@ -37,14 +37,14 @@ RSpec.describe Arg2MOMDP::Agent do
   end
 
   it "properly defaults the action names" do
-    r1 = instance_double("Rule", :premisses => [],
+    r1 = instance_double("Rule", :premises => [],
                          :alternatives => [instance_double("Alternative", :to_s => "+a(a) & +e(a,b)",
                                                            :probability => 1.0, :probability= => 1.0,
                                                            :modifiers => []),
                                            instance_double("Alternative", :to_s => "-h(a) & -h(c)",
                                                            :probability => 1.0, :probability= => 1.0,
                                                            :modifiers => [])])
-    r2 = instance_double("Rule", :premisses => [],
+    r2 = instance_double("Rule", :premises => [],
                          :alternatives => [instance_double("Alternative", :to_s => "-a(a)",
                                                            :probability => 1.0, :probability= => 1.0,
                                                            :modifiers => [])])

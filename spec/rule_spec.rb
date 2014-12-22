@@ -44,7 +44,7 @@ RSpec.describe Arg2MOMDP::Rule do
     expect {Arg2MOMDP::Rule.new([@p11], [@a2, @a3])}.to_not raise_error
   end
 
-  it "raises an error if there are contradictory premisses" do
+  it "raises an error if there are contradictory premises" do
     expect {Arg2MOMDP::Rule.new([@p1], [@a2, @a3])}.to raise_error
   end
 

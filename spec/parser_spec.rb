@@ -60,7 +60,7 @@ RSpec.describe Arg2MOMDP::Parser do
       rule = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer::lex("a(a) => 1.0: +a(b)"))
       expect(rule[0]).to be_a(Arg2MOMDP::Rule)
       expect(rule.size).to eq(1)
-      expect(rule[0].premisses.size).to eq(2)
+      expect(rule[0].premises.size).to eq(2)
       expect(rule[0].alternatives[0].probability).to eq(1)
       expect(rule[0].alternatives[0].modifiers.size).to eq(1)
     end

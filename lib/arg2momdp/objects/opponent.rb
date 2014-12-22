@@ -8,14 +8,14 @@ module Arg2MOMDP
     # @param arguments [Array<String>] The list of arguments
     # @param rules [Array<Rule>] The list of rules
     #
-    # @raise [Error] if two or more {Rule}s share the same premisses set
+    # @raise [Error] if two or more {Rule}s share the same premises set
     def initialize(arguments, rules)
       @arguments = arguments
       @rules     = rules
       @flags     = []
       extract_flags
       @rules.each do |r|
-        r.premisses.each {|p| p.change_owner(2)}
+        r.premises.each {|p| p.change_owner(2)}
         r.alternatives.each {|a| a.modifiers.each {|m| m.predicate.change_owner(2)}}
       end
       check_rules
@@ -25,10 +25,10 @@ module Arg2MOMDP
 
     def check_rules
       0.upto(@rules.size-2) do |r_i|
-        set = Set.new(@rules[r_i].premisses)
+        set = Set.new(@rules[r_i].premises)
         (r_i+1).upto(@rules.size-1) do |other_r_i|
-          other_set = Set.new(@rules[other_r_i].premisses)
-          raise "Several rules cannot have the exact same premisses: r#{r_i} and r#{other_r_i}" if set == other_set
+          other_set = Set.new(@rules[other_r_i].premises)
+          raise "Several rules cannot have the exact same premises: r#{r_i} and r#{other_r_i}" if set == other_set
         end
       end
     end

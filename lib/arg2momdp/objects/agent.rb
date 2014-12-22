@@ -32,7 +32,7 @@ module Arg2MOMDP
       rules.each do |r|
         r.alternatives.each do |a|
           a.probability = 1.0
-          @actions << Rule.new(r.premisses, [a])
+          @actions << Rule.new(r.premises, [a])
         end
       end
     end

@@ -32,14 +32,14 @@ module Arg2MOMDP
           prem_set    = Set.new
           prem_set.add(predicate.unsided)
           modifying_actions.each do |act_i, _|
-            prem_set.merge(agent.actions[act_i].premisses.map(&:unsided))
+            prem_set.merge(agent.actions[act_i].premises.map(&:unsided))
           end
           transitions = []
           premisses   = prem_set.to_a
           transitions << "* - " + ("* " * (premisses.size - 1)) + "-" << "identity" << nil
           modifying_actions.each do |act_i, mod|
             instance  = [agent.action_names[act_i]] + (["*"] * premisses.size) + ["-"]
-            agent.actions[act_i].premisses.each do |prem|
+            agent.actions[act_i].premises.each do |prem|
               instance[premisses.find_index(prem.unsided)+1] = prem.positive ? "s1" : "s0"
             end
             transitions << instance.join(" ") << (mod == :add ? "0 1.0" : "1.0 0") << nil
@@ -59,7 +59,7 @@ module Arg2MOMDP
               prem_set   = Set.new
               prem_set.add(pred.unsided)
               agent.actions.each_with_index do |act, act_i|
-                prem_set.merge(act.premisses.map(&:unsided))
+                prem_set.merge(act.premises.map(&:unsided))
                 premisses    = prem_set.to_a
                 instance     = [agent.action_names[act_i]] + (["*"] * premisses.size) + ["-"]
                 interm_state = Array.new(instance)
@@ -68,7 +68,7 @@ module Arg2MOMDP
                 end
                 opponent.rules.each_with_index do |rule, rule_i|
                   if compatible?(rule, interm_state, premisses)
-                    prem_set.merge(rule.premisses.map(&:unsided))
+                    prem_set.merge(rule.premises.map(&:unsided))
                     pairs[act_i] << rule_i
                     flags_set.add(rule_i) if opponent.rules[rule_i].alternatives.size > 1
                   end
@@ -84,7 +84,7 @@ module Arg2MOMDP
               transitions << "* - " + ("* " * (premisses.size - 1)) + ("* " * flags_set.size) + "-" << "identity" << nil
               pairs.each_with_index do |rules_i, act_i|
                 instance[0]  = agent.action_names[act_i]
-                agent.actions[act_i].premisses.each do |prem|
+                agent.actions[act_i].premises.each do |prem|
                   instance[premisses.find_index(prem.unsided)+1] = prem.positive ? "s1" : "s0"
                 end
                 agent.actions[act_i].alternatives[0].modifiers.each do |mod|
@@ -94,13 +94,13 @@ module Arg2MOMDP
                 cross_flags  = [nil] if cross_flags.empty?
                 [false, true].repeated_permutation(rules_i.size).sort_by { |p| p.count(true) }.drop(1).each do |perm|
                   interm_state    = Array.new(instance)
-                  cumulated_prems = Set.new(agent.actions[act_i].premisses.map(&:unsided))
+                  cumulated_prems = Set.new(agent.actions[act_i].premises.map(&:unsided))
                   skip            = false
                   perm.each_with_index do |val, ind|
                     next unless val
                     if compatible?(opponent.rules[rules_i[ind]], interm_state, premisses)
                       prem_to_loop = prem_set - cumulated_prems
-                      rule_prem    = opponent.rules[rules_i[ind]].premisses
+                      rule_prem    = opponent.rules[rules_i[ind]].premises
                       rule_prem.each do |prem|
                         interm_state[premisses.find_index(prem.unsided)+1] = prem.positive ? "s1" : "s0" if prem_to_loop.include?(prem.unsided)
                       end
