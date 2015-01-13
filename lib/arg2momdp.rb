@@ -21,4 +21,9 @@ module Arg2MOMDP
     autoload :TransitionBuilder,   "arg2momdp/pomdpx/transitionbuilder"
     autoload :RewardBuilder,       "arg2momdp/pomdpx/rewardbuilder"
   end
+
+  module AtkGraph
+    autoload :Vertex, "arg2momdp/atk_graph/vertex"
+    autoload :Graph,  "arg2momdp/atk_graph/graph"
+  end
 end

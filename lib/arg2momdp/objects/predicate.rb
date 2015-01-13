@@ -34,10 +34,14 @@ module Arg2MOMDP
       self
     end
 
+    def positive?
+      @positive
+    end
+
     def unsided
       p = clone
       p.negate! unless @positive
-      return p
+      p
     end
 
     def is?(type, arg1, arg2=nil, positive=true, owner=1)
