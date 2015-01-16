@@ -21,6 +21,14 @@ module Arg2MOMDP
       check_rules
     end
 
+    # Extracts flags number in order to select alternatives when transitioning.
+    def extract_flags
+      @flags.clear
+      rules.each_with_index do |r, i|
+        @flags << i unless r.alternatives.size == 1
+      end
+    end
+
     private
 
     def check_rules
@@ -30,13 +38,6 @@ module Arg2MOMDP
           other_set = Set.new(@rules[other_r_i].premises)
           raise "Several rules cannot have the exact same premises: r#{r_i} and r#{other_r_i}" if set == other_set
         end
-      end
-    end
-
-    # Extracts flags number in order to select alternatives when transitioning.
-    def extract_flags
-      rules.each_with_index do |r, i|
-        @flags << i unless r.alternatives.size == 1
       end
     end
   end

@@ -145,7 +145,7 @@ module Arg2MOMDP
           act_to_rem.reverse_each do |act_i|
             ag.rules.delete_at(act_i)
             ag.action_names.delete_at(act_i) if ag.respond_to?(:action_names)
-            ag.flags.delete_at(act_i) if ag.respond_to?(:flags)
+            ag.extract_flags if ag.respond_to?(:extract_flags)
           end
           puts "Rule(s) removed: #{act_to_rem.size}" unless act_to_rem.size == 0
         end
