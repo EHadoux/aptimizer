@@ -16,12 +16,17 @@ module Arg2MOMDP
 
         def build_flags_transitions(xml, opponent)
           opponent.flags.each do |f|
-            build_cond_prob(xml, "_nr#{f+1}", "action", "* -", opponent.rules[f].alternatives.map(&:probability).join(" "))
+            name    = "_nr#{f+1}"
+            parents = "action"
+            state   = "* -"
+            prob    = opponent.rules[f].alternatives.map(&:probability).join(" ")
+            build_cond_prob(xml, name, parents, state, prob)
           end
         end
 
         def build_agent_private_transitions(xml, agent, modification_hash)
-          modification_hash.lazy.select {|p| p[0].type == :priv && p[0].owner == 1 && !p[1][0].empty? }.each do |pred, actions_arr|
+          private_args_selector = lambda {|p| p[0].type == :priv && p[0].owner == 1 && !p[1][0].empty? }
+          modification_hash.lazy.select(&private_args_selector).each do |pred, actions_arr|
             build_agent_side_transitions(xml, agent, pred, actions_arr[0])
             actions_arr[0] = []
             modification_hash[pred] = actions_arr
@@ -29,14 +34,13 @@ module Arg2MOMDP
         end
 
         def build_agent_side_transitions(xml, agent, predicate, modifying_actions)
-          prem_set    = Set.new
+          prem_set = Set.new
           prem_set.add(predicate.unsided)
           modifying_actions.each do |act_i, _|
             prem_set.merge(agent.actions[act_i].premises.map(&:unsided))
           end
-          transitions = []
           premisses   = prem_set.to_a
-          transitions << "* - " + ("* " * (premisses.size - 1)) + "-" << "identity" << nil
+          transitions = [] << "* - " + ("* " * (premisses.size - 1)) + "-" << "identity" << nil
           modifying_actions.each do |act_i, mod|
             instance  = [agent.action_names[act_i]] + (["*"] * premisses.size) + ["-"]
             agent.actions[act_i].premises.each do |prem|
@@ -44,54 +48,48 @@ module Arg2MOMDP
             end
             transitions << instance.join(" ") << (mod == :add ? "0 1.0" : "1.0 0") << nil
           end
-          prem_str = premisses.map {|p| convert_string(p)}
-          build_cond_prob(xml, "n#{convert_string(predicate)}",
-                          "action " + prem_str.join(" "), *transitions)
+          name     = "n#{convert_string(predicate)}"
+          prem_str = premisses.map(&method(:convert_string)).join(" ")
+          parents  = "action " + prem_str
+          build_cond_prob(xml, name, parents, *transitions)
         end
 
         def build_public_argument_transitions(xml, agent, opponent, modification_hash)
-          modification_hash.lazy.select {|p| p[0].type == :pub || p[0].type == :atk }.each do |pred, modif_arrays|
-            if modif_arrays[1].empty? && !modif_arrays[0].empty?
+          public_or_atks = lambda {|p| p[0].type == :pub || p[0].type == :atk}
+          modification_hash.lazy.select(&public_or_atks).each do |pred, modif_arrays|
+            if modif_arrays[1].empty? && !modif_arrays[0].empty? # No modification of the predicate by the opponent
               build_agent_side_transitions(xml, agent, pred, modif_arrays[0])
             else
               flags_set  = Set.new
-              pairs      = Array.new(agent.actions.size) { Array.new }
+              pairs      = Array.new(agent.actions.size) { [] }
               prem_set   = Set.new
               prem_set.add(pred.unsided)
               agent.actions.each_with_index do |act, act_i|
                 prem_set.merge(act.premises.map(&:unsided))
-                premisses    = prem_set.to_a
-                instance     = [agent.action_names[act_i]] + (["*"] * premisses.size) + ["-"]
-                interm_state = Array.new(instance)
+                premisses = prem_set.to_a
+                instance  = [agent.action_names[act_i]] + (["*"] * premisses.size) + ["-"]
                 act.alternatives[0].modifiers.each do |mod|
-                  interm_state[premisses.find_index(mod.predicate)+1] = mod.type == :add ? "s1" : "s0"
+                  instance[premisses.find_index(mod.predicate)+1] = mod.type == :add ? "s1" : "s0"
                 end
                 opponent.rules.each_with_index do |rule, rule_i|
-                  if compatible?(rule, interm_state, premisses)
+                  if compatible?(rule, instance, premisses)
                     prem_set.merge(rule.premises.map(&:unsided))
                     pairs[act_i] << rule_i
                     flags_set.add(rule_i) if opponent.rules[rule_i].alternatives.size > 1
                   end
                 end
               end
-              alt_lists   = flags_set.to_a.map do |f|
-                s = opponent.rules[f].alternatives.size
-                s.times.map{|i| "alt#{i+1}"} if s > 1
-              end.compact
               premisses   = prem_set.to_a
               instance    = (["*"] * (prem_set.size + 1)) + (["*"] * flags_set.size) + ["-"]
-              transitions = []
-              transitions << "* - " + ("* " * (premisses.size - 1)) + ("* " * flags_set.size) + "-" << "identity" << nil
+              transitions = [] << "* - " + ("* " * (premisses.size - 1)) + ("* " * flags_set.size) + "-" << "identity" << nil
               pairs.each_with_index do |rules_i, act_i|
-                instance[0]  = agent.action_names[act_i]
+                instance[0] = agent.action_names[act_i]
                 agent.actions[act_i].premises.each do |prem|
                   instance[premisses.find_index(prem.unsided)+1] = prem.positive ? "s1" : "s0"
                 end
                 agent.actions[act_i].alternatives[0].modifiers.each do |mod|
                   instance[premisses.find_index(mod.predicate)+1] = mod.type == :add ? "s1" : "s0"
                 end
-                cross_flags  = [""].product(*alt_lists)
-                cross_flags  = [nil] if cross_flags.empty?
                 [false, true].repeated_permutation(rules_i.size).sort_by { |p| p.count(true) }.drop(1).each do |perm|
                   interm_state    = Array.new(instance)
                   cumulated_prems = Set.new(agent.actions[act_i].premises.map(&:unsided))
@@ -111,18 +109,25 @@ module Arg2MOMDP
                     end
                   end
                   next if skip
+                  alt_lists = flags_set.to_a.map do |f|
+                    s = opponent.rules[f].alternatives.size
+                    s.times.map{|i| "alt#{i+1}"} if perm[f]
+                  end.compact
+                  cross_flags = [""].product(*alt_lists)
+                  cross_flags = [nil] if cross_flags.empty?
                   cross_flags.each do |f|
                     flags                   = Array.new(f)
                     mod_sides               = [[], [], []]
                     interm_state_with_flags = Array.new(interm_state)
                     unless flags.nil?
                       flags.shift
-                      flags.reverse_each.with_index { |flag, flag_i| interm_state_with_flags[-flag_i-2] = flag}
+                      #flags.reverse_each.with_index { |flag, flag_i| interm_state_with_flags[-flag_i-2] = flag}
                     end
                     rules_i.each_with_index do |rule_i, ind|
                       rule = opponent.rules[rule_i]
-                      alt = rule.alternatives.size > 1 ? (flags.shift[-1].to_i - 1) : 0
                       next unless perm[ind]
+                      alt  = rule.alternatives.size > 1 ? (flags.shift[-1].to_i - 1) : 0
+                      interm_state_with_flags[-rule_i-1] = "alt#{alt+1}" if rule.alternatives.size > 1
                       if rule.alternatives[alt].modifies?(pred)
                         mod = rule.alternatives[alt].modifiers.select { |m| m.predicate == pred }
                         raise "Bug" if mod.size != 1
@@ -140,56 +145,39 @@ module Arg2MOMDP
                 end
               end
               prem_str = premisses.map {|p| convert_string(p)}
-              build_cond_prob(xml, "n#{convert_string(pred)}", "action " + prem_str.join(" ") + " " + flags_set.to_a.map{|f| "_r#{f+1}"}.join(" "), *transitions)
+              build_cond_prob(xml, "n#{convert_string(pred)}", "action " + prem_str.join(" ") + " " + flags_set.to_a.reverse.map{|f| "_r#{f+1}"}.join(" "), *transitions)
             end
           end
         end
 
         def build_non_modified_predicates(xml, pomdpx, modification_hash)
-          pomdpx.agent.arguments.each do |arg|
-            pred     = Predicate.new(:priv, arg)
-            str_name = convert_string(pred)
-            build_cond_prob(xml, "n#{str_name}", "action #{str_name}", "* - -", "identity") unless modification_hash.has_key?(pred) && !modification_hash[pred][0].empty?
+          private_init   = lambda { |arg, owner| Predicate.new(:priv, arg, owner: owner) }
+          public_init    = lambda { |arg, _| Predicate.new(:pub, arg) }
+          atk_init       = lambda { |arg, _| arg }
+          private_empty  = lambda { |pred, owner| modification_hash.has_key?(pred) && !modification_hash[pred][owner-1].empty? }
+          public_empty   = lambda { |pred, _| modification_hash.has_key?(pred) }
+          build = lambda do |set, owner, init, tester|
+            set.each do |arg|
+              pred     = init.call(arg, owner)
+              str_name = "n#{convert_string(pred)}"
+              parents  = "action #{str_name}"
+              state    = "* - -"
+              prob     = "identity"
+              build_cond_prob(xml, str_name, parents, state, prob) unless tester.call(pred, owner)
+            end
           end
 
-          pomdpx.opponent.arguments.each do |arg|
-            pred     = Predicate.new(:priv, arg, owner:2)
-            str_name = convert_string(pred)
-            build_cond_prob(xml, "n#{str_name}", "action #{str_name}", "* - -", "identity") unless modification_hash.has_key?(pred) && !modification_hash[pred][1].empty?
-          end
-
-          pomdpx.public_space.arguments.each do |arg|
-            pred     = Predicate.new(:pub, arg)
-            str_name = convert_string(pred)
-            build_cond_prob(xml, "n#{str_name}", "action #{str_name}", "* - -", "identity") unless modification_hash.has_key?(pred)
-          end
-
-          pomdpx.public_space.attacks.each do |atk|
-            str_name = convert_string(atk)
-            build_cond_prob(xml, "n#{str_name}", "action #{str_name}", "* - -", "identity") unless modification_hash.has_key?(atk)
-          end
-        end
-
-        def build_cond_prob(xml, var, parent, *instances)
-          xml.CondProb {
-            xml.Var var
-            xml.Parent parent
-            xml.Parameter(:type => "TBL") {
-              instances.each_slice(3) do |i, p, c|
-                xml.Entry {
-                  xml.comment c unless c.nil?
-                  xml.Instance i
-                  xml.ProbTable p
-                }
-              end
-            }
-          }
+          build.call(pomdpx.agent.arguments, 1, private_init, private_empty)
+          build.call(pomdpx.opponent.arguments, 2, private_init, private_empty)
+          build.call(pomdpx.public_space.arguments, 0, public_init, public_empty)
+          #build.call(pomdpx.public_space.attacks, 0, :itself.to_proc, public_empty)
+          build.call(pomdpx.public_space.attacks, 0, atk_init, public_empty)
         end
       end
 
       private_class_method :build_agent_private_transitions, :build_flags_transitions,
                            :build_public_argument_transitions, :build_non_modified_predicates,
-                           :build_agent_side_transitions, :build_cond_prob
+                           :build_agent_side_transitions
     end
   end
 end

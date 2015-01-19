@@ -26,10 +26,10 @@ module Arg2MOMDP
         return rule.compatible?(premisses)
       end
 
-      # Donne les actions et les règles qui modifient pour chacun des prédicats
+      # For each predicate, gives which actions and rules modify it
       def get_modifying_rules(agent, opponent)
         modified_by = Hash.new { [[],[]] }
-        [agent.actions, opponent.rules].each_with_index do |set, index|
+        track = lambda do |set, index|
           set.each_with_index do |rule, rule_i|
             rule.alternatives.each do |alt|
               alt.modifiers.each do |mod|
@@ -40,6 +40,8 @@ module Arg2MOMDP
             end
           end
         end
+        track.call(agent.actions, 0)
+        track.call(opponent.rules, 1)
         return modified_by
       end
 
@@ -85,6 +87,23 @@ module Arg2MOMDP
         end
         value_hash[predicate] = true
         return true
+      end
+
+
+      def build_cond_prob(xml, var, parent, *instances)
+        xml.CondProb {
+          xml.Var var
+          xml.Parent parent
+          xml.Parameter(:type => "TBL") {
+            instances.each_slice(3) do |i, p, c|
+              xml.Entry {
+                xml.comment c unless c.nil?
+                xml.Instance i
+                xml.ProbTable p
+              }
+            end
+          }
+        }
       end
     end
   end

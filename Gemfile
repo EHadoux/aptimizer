@@ -9,8 +9,3 @@ group :test do
   gem "simplecov", require: nil
 end
 
-group :development do
-  gem "bundler", require: nil
-  gem "rake", require: nil
-end
-
