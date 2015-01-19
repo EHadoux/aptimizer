@@ -52,7 +52,7 @@ module Arg2MOMDP
           modified = false
           to_add = Set.new
           set.each do |pred|
-            public_space.attacks.each do |atk|
+            public_space.backup_attacks.each do |atk|
               if atk.argument2 == pred.argument1 && !set.include?(atk)
                 to_add.add(atk)
                 modified = true
