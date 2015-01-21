@@ -47,22 +47,42 @@ module Arg2MOMDP
 
       def get_goal_full_set(agent, public_space)
         set      = Set.new
+        arg_set  = Set.new
         set.merge(agent.goals)
+        arg_set.merge(agent.goals)
         loop do
-          modified = false
-          to_add = Set.new
+          modified    = false
+          atk_to_add  = Set.new
+          args_to_add = Set.new
           set.each do |pred|
             public_space.backup_attacks.each do |atk|
-              if atk.argument2 == pred.argument1 && !set.include?(atk)
-                to_add.add(atk)
+              if atk.argument2 == pred.argument1 && !set.include?(atk) && public_space.arguments.include?(atk.argument1)
+                atk_to_add.add(atk)
+                args_to_add.add(Predicate.new(:pub, atk.argument1))
                 modified = true
               end
             end
           end
-          set.merge(to_add)
+          set.merge(atk_to_add)
+          arg_set.merge(args_to_add)
           break unless modified
         end
-        return set.to_a
+        public_space.direct_relevance ? arg_set.to_a : set.to_a
+      end
+
+      def evaluate_goal_compliance_dr(goals_hash, agent, public_space)
+        atk_arr, pred_arr = goals_hash.partition{|p| !agent.goals.include? p[0]}
+        value_hash        = Hash.new
+        pred_arr.each do |pred, value|
+          return false if pred.positive && !value
+          next unless pred.positive || value
+          if is_true_dr?(pred, atk_arr, value_hash, public_space)
+            return false unless pred.positive
+          else
+            return false if pred.positive
+          end
+        end
+        return true
       end
 
       def evaluate_goal_compliance(goals_hash)
@@ -71,8 +91,25 @@ module Arg2MOMDP
         pred_arr.each do |pred, value|
           return false if pred.positive && !value
           next unless pred.positive || value
-          is_true?(pred, atk_arr, value_hash)
+          if is_true?(pred, atk_arr, value_hash)
+            return false unless pred.positive
+          else
+            return false if pred.positive
+          end
         end
+        return true
+      end
+
+      def is_true_dr?(predicate, atk_arr, value_hash, public_space)
+        return value_hash[predicate] if value_hash.include?(predicate)
+        atk_arr.lazy.select{|atk| public_space.backup_attacks.include? Predicate.new(:atk, atk[0].argument1, arg2:predicate.argument1)}.each do |atk|
+          next unless atk[1]
+          if is_true_dr?(atk[0], atk_arr, value_hash, public_space)
+            value_hash[predicate] = false
+            return false
+          end
+        end
+        value_hash[predicate] = true
         return true
       end
 
@@ -88,7 +125,6 @@ module Arg2MOMDP
         value_hash[predicate] = true
         return true
       end
-
 
       def build_cond_prob(xml, var, parent, *instances)
         xml.CondProb {

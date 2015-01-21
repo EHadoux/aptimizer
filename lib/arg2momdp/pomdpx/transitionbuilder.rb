@@ -69,7 +69,8 @@ module Arg2MOMDP
                 premisses = prem_set.to_a
                 instance  = [agent.action_names[act_i]] + (["*"] * premisses.size) + ["-"]
                 act.alternatives[0].modifiers.each do |mod|
-                  instance[premisses.find_index(mod.predicate)+1] = mod.type == :add ? "s1" : "s0"
+                  index = premisses.find_index(mod.predicate)
+                  instance[index+1] = mod.type == :add ? "s1" : "s0" unless index.nil?
                 end
                 opponent.rules.each_with_index do |rule, rule_i|
                   if compatible?(rule, instance, premisses)
@@ -88,7 +89,8 @@ module Arg2MOMDP
                   instance[premisses.find_index(prem.unsided)+1] = prem.positive ? "s1" : "s0"
                 end
                 agent.actions[act_i].alternatives[0].modifiers.each do |mod|
-                  instance[premisses.find_index(mod.predicate)+1] = mod.type == :add ? "s1" : "s0"
+                  index = premisses.find_index(mod.predicate)
+                  instance[index+1] = mod.type == :add ? "s1" : "s0" unless index.nil?
                 end
                 [false, true].repeated_permutation(rules_i.size).sort_by { |p| p.count(true) }.drop(1).each do |perm|
                   interm_state    = Array.new(instance)
@@ -159,11 +161,11 @@ module Arg2MOMDP
           build = lambda do |set, owner, init, tester|
             set.each do |arg|
               pred     = init.call(arg, owner)
-              str_name = "n#{convert_string(pred)}"
+              str_name = convert_string(pred)
               parents  = "action #{str_name}"
               state    = "* - -"
               prob     = "identity"
-              build_cond_prob(xml, str_name, parents, state, prob) unless tester.call(pred, owner)
+              build_cond_prob(xml, "n#{str_name}", parents, state, prob) unless tester.call(pred, owner)
             end
           end
 

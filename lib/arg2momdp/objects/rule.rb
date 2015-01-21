@@ -16,7 +16,7 @@ module Arg2MOMDP
         raise "Sum of alternatives probabilities != 1.0: sum = #{sum}"
       end
 
-      expand_premises
+      #expand_premises
     end
 
     # Returns a readable version of the rule.

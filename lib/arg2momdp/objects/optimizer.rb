@@ -1,22 +1,23 @@
 module Arg2MOMDP
   class Optimizer
     class << self
-      def optimize(pomdp, *optimizations)
+      def optimize(pomdp, verbose=true, *optimizations)
         flags_list = [:agent_args, :opp_args, :initial, :attacks, :dominated]
         f = (optimizations - flags_list) and (raise "Unknown flags :#{f}" unless f.empty?)
         optimizations = flags_list if optimizations.empty?
         optimizations += [:agent_args, :opp_args] if (optimizations.include?(:initial) || optimizations.include?(:dominated))
-        remove_useless_args(pomdp.agent) if optimizations.include?(:agent_args)
-        remove_useless_args(pomdp.opponent) if optimizations.include?(:opp_args)
-        remove_attacks(pomdp) if optimizations.include?(:attacks)
-        remove_dominated(pomdp) if optimizations.include?(:dominated)
-        optimize_initial(pomdp.agent, pomdp.opponent, pomdp.public_space) if optimizations.include?(:initial)
+        remove_useless_args(pomdp.agent, verbose) if optimizations.include?(:agent_args)
+        remove_useless_args(pomdp.opponent, verbose) if optimizations.include?(:opp_args)
+        remove_attacks(pomdp, verbose) if optimizations.include?(:attacks)
+        remove_dominated(pomdp, verbose) if optimizations.include?(:dominated)
+        optimize_initial(pomdp.agent, pomdp.opponent, pomdp.public_space, verbose) if optimizations.include?(:initial)
+        pomdp
       end
 
       # Removes arguments not involved in any premise or modifier
       #
       # @param agent [Agent, Opponent] The agent or opponent to optimize
-      def remove_useless_args(agent)
+      def remove_useless_args(agent, verbose)
         args = Set.new
         agent.rules.each do |rule|
           args.merge(rule.premises.select{|p| p.type == :priv}.map(&:argument1)) # Merge all premises
@@ -24,13 +25,13 @@ module Arg2MOMDP
             args.merge(alt.modifiers.select{|m| m.predicate.type == :priv}.map{|m| m.predicate.argument1}) # Merge all modifiers
           end
         end
-        puts "Arguments removed: #{agent.arguments.size - args.size}"
+        puts "Arguments removed: #{agent.arguments.size - args.size}" if verbose
         agent.arguments = args.to_a # Arguments not involved in any premise or modifier are left over
       end
 
       # Removes attacks from the rules
       # It is up to the user to know if this makes sense for this problem
-      def remove_attacks(pomdp)
+      def remove_attacks(pomdp, verbose)
         pomdp.public_space.attacks.clear
         remover = lambda do |ag|
           ag.rules.each do |rule|
@@ -42,11 +43,12 @@ module Arg2MOMDP
         end
         remover.call(pomdp.agent)
         remover.call(pomdp.opponent)
-        puts "Attacks removed: #{pomdp.public_space.backup_attacks.size}"
+        puts "Attacks removed: #{pomdp.public_space.backup_attacks.size}" if verbose
+        pomdp.public_space.direct_relevance = true
       end
 
       # Removes arguments of agent 1 that can never be defended
-      def remove_dominated(pomdp)
+      def remove_dominated(pomdp, verbose)
         graph = AtkGraph::Graph.new
         pomdp.public_space.backup_attacks.each do |atk| # Creates the graph
           arg1 = atk.argument1
@@ -61,13 +63,13 @@ module Arg2MOMDP
           break if to_rem.empty?
           to_rem.each do |vertex|
             pomdp.agent.arguments.delete(vertex.value)
-            puts "Argument #{vertex.value} removed"
+            puts "Argument #{vertex.value} removed" if verbose
             pomdp.agent.actions.reverse.each_with_index do |act, act_i|
               act.alternatives[0].modifiers.delete_if {|m| m.predicate.argument1 == vertex.value} # Removes modifiers
               if act.alternatives[0].modifiers.empty? # If no more, removes the rule, otherwise, removes premises
                 pomdp.agent.actions.delete_at(-(act_i+1))
                 name = pomdp.agent.action_names.delete_at(-(act_i+1))
-                puts "Action #{name} removed"
+                puts "Action #{name} removed" if verbose
               else
                 act.premises.delete_if {|p| p.argument1 == vertex.value}
               end
@@ -77,12 +79,12 @@ module Arg2MOMDP
         end
       end
 
-      def optimize_initial(agent, opponent, public_space)
-        optimize_initial_agent(agent)
-        optimize_initial_public(agent, opponent, public_space)
+      def optimize_initial(agent, opponent, public_space, verbose)
+        optimize_initial_agent(agent, verbose)
+        optimize_initial_public(agent, opponent, public_space, verbose)
       end
 
-      def optimize_initial_agent(agent)
+      def optimize_initial_agent(agent, verbose)
         args_to_rem = Set.new
         old_set     = nil
         loop do
@@ -111,14 +113,14 @@ module Arg2MOMDP
               agent.actions.delete_at(act_i)
               agent.action_names.delete_at(act_i)
             end
-            puts "Rule(s) removed: #{act_to_rem.size}" unless act_to_rem.size == 0
+            puts "Rule(s) removed: #{act_to_rem.size}" unless act_to_rem.size == 0 || !verbose
           end
           old_set = Set.new(args_to_rem)
           args_to_rem.clear
         end
       end
 
-      def optimize_initial_public(agent, opponent, public_space)
+      def optimize_initial_public(agent, opponent, public_space, verbose)
         args_to_rem = Set.new
         old_set     = nil
         tracker = lambda do |ag|
@@ -147,7 +149,7 @@ module Arg2MOMDP
             ag.action_names.delete_at(act_i) if ag.respond_to?(:action_names)
             ag.extract_flags if ag.respond_to?(:extract_flags)
           end
-          puts "Rule(s) removed: #{act_to_rem.size}" unless act_to_rem.size == 0
+          puts "Rule(s) removed: #{act_to_rem.size}" unless act_to_rem.size == 0 || !verbose
         end
 
         loop do
