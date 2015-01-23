@@ -119,7 +119,7 @@ module Arg2MOMDP
                   cross_flags = [nil] if cross_flags.empty?
                   cross_flags.each do |f|
                     flags                   = Array.new(f)
-                    mod_sides               = [[], [], []]
+                    mod_sides               = [[], []]
                     interm_state_with_flags = Array.new(interm_state)
                     unless flags.nil?
                       flags.shift
@@ -136,7 +136,7 @@ module Arg2MOMDP
                         mod = mod[0]
                         mod_sides[mod.type == :rem ? 0 : 1] << rule_i
                       else
-                        mod_sides[2] << rule_i
+                        mod_sides[0] << rule_i # Temporaire
                       end
                     end
                     next if mod_sides[0].empty? && mod_sides[1].empty?
