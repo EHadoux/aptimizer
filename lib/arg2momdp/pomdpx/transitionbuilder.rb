@@ -140,8 +140,8 @@ module Arg2MOMDP
                       end
                     end
                     next if mod_sides[0].empty? && mod_sides[1].empty?
-                    s0_proba = mod_sides[0].size / (mod_sides[0].size + mod_sides[1].size)
-                    s1_proba = mod_sides[1].size / (mod_sides[0].size + mod_sides[1].size)
+                    s0_proba = mod_sides[0].size.to_f / (mod_sides[0].size + mod_sides[1].size)
+                    s1_proba = mod_sides[1].size.to_f / (mod_sides[0].size + mod_sides[1].size)
                     transitions << interm_state_with_flags.join(" ") << "#{s0_proba} #{s1_proba}" << rules_i.map{|r| "r#{r+1}=#{perm[r] ? "1" : "0"}"}.join(" ")
                   end
                 end
