@@ -81,10 +81,11 @@ module Arg2MOMDP
                 end
               end
               premisses   = prem_set.to_a
-              instance    = (["*"] * (prem_set.size + 1)) + (["*"] * flags_set.size) + ["-"]
               transitions = [] << "* - " + ("* " * (premisses.size - 1)) + ("* " * flags_set.size) + "-" << "identity" << nil
               pairs.each_with_index do |rules_i, act_i|
+                instance    = (["*"] * (prem_set.size + 1)) + (["*"] * flags_set.size) + ["-"]
                 instance[0] = agent.action_names[act_i]
+                instance[1] = "-"
                 agent.actions[act_i].premises.each do |prem|
                   instance[premisses.find_index(prem.unsided)+1] = prem.positive ? "s1" : "s0"
                 end
@@ -95,6 +96,7 @@ module Arg2MOMDP
                 [false, true].repeated_permutation(rules_i.size).sort_by { |p| p.count(true) }.drop(1).each do |perm|
                   interm_state    = Array.new(instance)
                   cumulated_prems = Set.new(agent.actions[act_i].premises.map(&:unsided))
+                  cumulated_prems.merge(agent.actions[act_i].alternatives[0].modifiers.map(&:predicate))
                   skip            = false
                   perm.each_with_index do |val, ind|
                     next unless val
@@ -119,30 +121,48 @@ module Arg2MOMDP
                   cross_flags = [nil] if cross_flags.empty?
                   cross_flags.each do |f|
                     flags                   = Array.new(f)
-                    mod_sides               = [[], []]
+                    mod_sides               = [[], [], []]
                     interm_state_with_flags = Array.new(interm_state)
                     unless flags.nil?
                       flags.shift
                       #flags.reverse_each.with_index { |flag, flag_i| interm_state_with_flags[-flag_i-2] = flag}
                     end
+
+                    modified = false
                     rules_i.each_with_index do |rule_i, ind|
                       rule = opponent.rules[rule_i]
                       next unless perm[ind]
                       alt  = rule.alternatives.size > 1 ? (flags.shift[-1].to_i - 1) : 0
                       interm_state_with_flags[-rule_i-1] = "alt#{alt+1}" if rule.alternatives.size > 1
                       if rule.alternatives[alt].modifies?(pred)
+                        modified = true
                         mod = rule.alternatives[alt].modifiers.select { |m| m.predicate == pred }
                         raise "Bug" if mod.size != 1
                         mod = mod[0]
                         mod_sides[mod.type == :rem ? 0 : 1] << rule_i
                       else
-                        mod_sides[0] << rule_i # Temporaire
+                        mod_sides[2] << rule_i
                       end
                     end
-                    next if mod_sides[0].empty? && mod_sides[1].empty?
-                    s0_proba = mod_sides[0].size.to_f / (mod_sides[0].size + mod_sides[1].size)
-                    s1_proba = mod_sides[1].size.to_f / (mod_sides[0].size + mod_sides[1].size)
-                    transitions << interm_state_with_flags.join(" ") << "#{s0_proba} #{s1_proba}" << rules_i.map{|r| "r#{r+1}=#{perm[r] ? "1" : "0"}"}.join(" ")
+                    next unless modified
+
+                    pred_instance_value = interm_state_with_flags[1]
+                    if pred_instance_value == "-"
+                      probas    = Array.new(4)
+                      probas[0] = mod_sides[0].size + mod_sides[2].size
+                      probas[1] = mod_sides[1].size
+                      probas[2] = mod_sides[0].size
+                      probas[3] = mod_sides[1].size + mod_sides[2].size
+                      probas.map!{ |p| p.to_f / mod_sides.lazy.map(&:size).reduce(:+)}
+                      probas_str = probas.join(" ")
+                    else
+                      mod_sides[pred_instance_value[1].to_i] += mod_sides[2]
+                      sides_sum  = mod_sides[0].size + mod_sides[1].size
+                      s0_proba   = mod_sides[0].size.to_f / sides_sum
+                      s1_proba   = mod_sides[1].size.to_f / sides_sum
+                      probas_str = "#{s0_proba} #{s1_proba}"
+                    end
+                    transitions << interm_state_with_flags.join(" ") << probas_str << rules_i.map{|r| "r#{r+1}=#{perm[r] ? "1" : "0"}"}.join(" ")
                   end
                 end
               end
