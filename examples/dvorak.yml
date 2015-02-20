@@ -1,0 +1,74 @@
+title: dvorak
+
+version: 1
+
+discount: 0.9
+
+arguments: [a, b, c, d, e, f, g, h]
+
+attacks:
+ - e(b,a)
+ - e(c,b)
+ - e(c,d)
+ - e(d,c)
+ - e(d,e)
+ - e(f,e)
+ - e(g,f)
+ - e(e,g)
+ - e(h,d)
+
+agent:
+ - premises: "h(a)"
+   claims:
+   - "1.0: +a(a)"
+
+ - premises: "h(e)"
+   claims:
+   - "1.0: +a(e)"
+
+ - premises: "h(e) & a(g)"
+   claims:
+   - "1.0: +a(e)"
+
+ - premises: "h(g) & a(f)"
+   claims:
+   - "1.0: +a(g)"
+
+ - premises: "h(c) & a(b)"
+   claims:
+   - "1.0: +a(c)"
+
+ - premises: "h(c) & a(d)"
+   claims:
+   - "1.0: +a(c)"
+
+ - premises: "h(h) & a(d)"
+   claims:
+   - "1.0: +a(h)"
+
+opponent:
+ - premises: "h(b) & a(a)"
+   claims:
+   - "1.0: +a(b)"
+
+ - premises: "h(d) & a(c)"
+   claims:
+   - "1.0: +a(d)"
+
+ - premises: "h(d) & h(f) & a(e)"
+   claims:
+   - "0.5: +a(d)"
+   - "0.5: +a(f)"
+
+initial: "h(a) & h(c) & h(e) & h(g) & h(h)"
+
+goals: "g(a) & g(e)"
+
+action_names:
+ - adda
+ - adde
+ - addep
+ - addg
+ - addc
+ - addcp
+ - addh

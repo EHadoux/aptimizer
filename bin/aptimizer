@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+require "aptimizer"
+require "yaml"
+require "thor"
+
+class AptimizerCli < Thor
+  desc "debug PROBLEM.yml", "Shows optimizations applied and the resulting problem for debug purpose"
+  method_option :optimizations, :default => [], :type => :array
+  method_option :cycle, :default => true, :type => :boolean
+  def debug(problem)
+    yaml = YAML.load_file(problem)
+    puts loadAPS(yaml, true, options[:cycle], options[:optimizations])
+  end
+
+  desc "pomdpx PROBLEM.yml", "Generates, optimizes and converts the problem to a POMDPX file then prints it to STDOUT"
+  method_option :optimizations, :default => [], :type => :array
+  method_option :cycle, :default => true, :type => :boolean
+  def pomdpx(problem)
+    yaml = YAML.load_file(problem)
+    aps  = loadAPS(yaml, false, options[:cycle], options[:optimizations])
+    puts Aptimizer::POMDPX::XMLBuilder.new(yaml["version"], yaml["title"], aps).build_pomdpx
+  end
+
+  no_commands do
+    def loadAPS(yaml, verbose, cycle, optimizations)
+      argarr   = Aptimizer::Parser.parse(Aptimizer::Lexer.lex(yaml["arguments"].join(",")))
+      atkarr   = Aptimizer::Parser.parse(Aptimizer::Lexer.lex(yaml["attacks"].join(",")))
+      r1arr    = Aptimizer::Parser.parse(Aptimizer::Lexer.lex(yaml["agent"].map{|r| "#{r["premises"]} => #{r["claims"].join("|")}"}.join(",")))
+      r2arr    = Aptimizer::Parser.parse(Aptimizer::Lexer.lex(yaml["opponent"].map{|r| "#{r["premises"]} => #{r["claims"].join("|")}"}.join(",")))
+      initarr  = Aptimizer::Parser.parse(Aptimizer::Lexer.lex(yaml["initial"]))
+      actarr   = Aptimizer::Parser.parse(Aptimizer::Lexer.lex(yaml["action_names"].join(",")))
+      goalsarr = Aptimizer::Parser.parse(Aptimizer::Lexer.lex(yaml["goals"]))
+
+      agent        = Aptimizer::Agent.new(argarr, r1arr, initarr, goalsarr, actarr)
+      opponent     = Aptimizer::Opponent.new(argarr, r2arr)
+      public_space = Aptimizer::PublicSpace.new(argarr, atkarr, initarr)
+      aps          = Aptimizer::APS.new(yaml["discount"], agent, opponent, public_space)
+      optimizer    = Aptimizer::Optimizer.new(aps)
+      optimizer.optimize(aps, verbose, cycle, optimizations.map(&:to_sym))
+    end
+  end
+end
+
+AptimizerCli.start

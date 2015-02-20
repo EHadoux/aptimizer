@@ -1,0 +1,36 @@
+title: small
+
+version: 1
+
+discount: 0.9
+
+arguments: [a, b, c, s]
+
+attacks:
+ - e(c,a)
+ - e(b,a)
+ - e(a,b)
+
+agent:
+ - premises: "h(a) & a(b) & !a(s)"
+   claims:
+   - "1.0: +a(a) & +e(a,b) & -e(b,a)"
+
+ - premises: "a(c)"
+   claims:
+   - "1.0: +a(s)"
+
+opponent:
+ - premises: "h(b) & h(c)"
+   claims:
+   - "0.9: +e(b,a) & -e(a, b)"
+   - "0.1: +a(c) & +e(c, a)"
+
+initial: "h(a) & a(b)"
+
+goals: g(a)
+
+action_names:
+ - adda
+ - surrender
+
