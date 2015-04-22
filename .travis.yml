@@ -1,0 +1,7 @@
+language: ruby
+cache: bundler
+sudo: false
+rvm:
+  - 2.2.2
+env:
+  - CODECLIMATE_REPO_TOKEN=7319bc836b735db3e41fea67b150d85af37e574c3cc601e595348d167a164079 bundle exec rake

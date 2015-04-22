@@ -1,4 +1,4 @@
-module Arg2MOMDP
+module Aptimizer
   module POMDPX
     module Helpers
       # Transforms a predicate to a string representation COMPATIBLE WITH POMDPX.

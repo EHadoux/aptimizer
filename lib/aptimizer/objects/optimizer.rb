@@ -3,20 +3,38 @@ module Aptimizer
     attr_reader :premises_hash, :modif_hash
 
     def initialize(aps)
+      fill_usage_hashes(aps)
+    end
+
+    def fill_usage_hashes(aps)
       @premises_hash = Hash.new(nil)
       @modif_hash    = Hash.new(nil)
+      @user_hash     = Hash.new(nil)
 
       filler = ->(pred, hash) do
         case pred.type
-          when :pub  then hash[pred.argument1]                        = true
-          when :priv then hash["#{pred.argument1}#{pred.owner}"]      = true
-          when :atk  then hash["#{pred.argument1}_#{pred.argument2}"] = true
+          when :pub  then str = pred.argument1
+          when :priv then str = "#{pred.argument1}#{pred.owner}"
+          when :atk  then str = "#{pred.argument1}_#{pred.argument2}"
+          else raise Error
+        end
+        if hash[str].nil?
+          hash[str] = (pred.positive ? :pos : :neg)
+        else
+          hash[str] = :both if hash[str] != (pred.positive ? :pos : :neg)
         end
       end
 
-      (aps.agent.rules + aps.opponent.rules).each do |r|
+      (aps.agent.rules.product([:agent]) + aps.opponent.rules.product([:opponent])).each do |r, a|
         r.premises.each  {|p| filler.(p, @premises_hash)}
-        r.modifiers.each {|m| filler.(m.predicate, @modif_hash)}
+        r.modifiers.each do |m|
+          filler.(m.predicate, @modif_hash)
+          if m.predicate.type == :pub
+            arg = m.predicate.argument1
+            @user_hash[arg] = a     if @user_hash[arg].nil?
+            @user_hash[arg] = :both if @user_hash[arg] == :agent && a == :opponent
+          end
+        end
       end
     end
 
@@ -32,8 +50,9 @@ module Aptimizer
             when :irrelevant then modified = remove_irrelevant_args(aps, verbose) || modified
             when :enthymeme  then modified = remove_enthymemes(aps, verbose) || modified
             when :dominated  then modified = remove_dominated(aps, verbose) || modified
-            when :initial    then modified = optimize_initial(aps, verbose) || modified
+            when :initial    then modified = remove_incompatible_initial(aps, verbose) || modified
           end
+          prune_empty_rules(aps, verbose)
         end
       end while modified && cycle
       aps
@@ -41,12 +60,43 @@ module Aptimizer
 
     private
 
+    def prune_empty_rules(aps, verbose)
+      if verbose
+        puts "\n--> Pruning empty rules:"
+      end
+
+      prune = ->(set) do
+        removed = Array.new
+        set.rules.each_with_index do |rule, r_index|
+          removed << [rule, r_index] if rule.alternatives.map(&:modifiers).all?(&:empty?)
+        end
+        set.rules -= removed.map(&:first)
+        removed
+      end
+
+      agent_removed = prune.(aps.agent)
+      unless agent_removed.empty?
+        if verbose
+          puts "Agent rules removed: #{agent_removed.map{|_,r| aps.agent.action_names[r]}}"
+        end
+        agent_removed.reverse_each {|r| aps.agent.action_names.delete_at(r[1]) }
+      end
+      opp_removed = prune.(aps.opponent)
+      unless opp_removed.empty?
+        if verbose
+          puts "Opponent rules removed: #{opp_removed.map{|_,r| "r#{r}"}}"
+        end
+      end
+
+      fill_usage_hashes(aps) unless agent_removed.empty? && opp_removed.empty?
+    end
+
     # Removes arguments not involved in any premise or modifier
     #
     # @param aps [APS] The APS to optimize
     def remove_irrelevant_args(aps, verbose)
       if verbose
-        puts "--> Applying irrelevant arguments optimization:"
+        puts "\n--> Applying irrelevant arguments optimization:"
       end
       remove = ->(set, num="") do
         args = Array.new(set.arguments)
@@ -77,8 +127,7 @@ module Aptimizer
         puts %Q{Private arguments removed for agent 1: #{agent_removed.map{|a| "h(#{a})"}}
 Private arguments removed for agent 2: #{opp_removed.map{|a| "h(#{a})"}}
 Public arguments removed: #{public_removed.map{|a| "a(#{a})"}}
-Attacks removed: #{atk_removed.map{|atk| "e(#{atk.argument1},#{atk.argument2})"}}
-        }
+Attacks removed: #{atk_removed.map{|atk| "e(#{atk.argument1},#{atk.argument2})"}}}
       end
       !agent_removed.empty? || !opp_removed.empty? || !public_removed.empty? || !atk_removed.empty?
     end
@@ -86,36 +135,32 @@ Attacks removed: #{atk_removed.map{|atk| "e(#{atk.argument1},#{atk.argument2})"}
     # Removes attacks from the rules if they are implicitely accessible
     def remove_enthymemes(aps, verbose)
       if verbose
-        puts "--> Applying enthymemes optimization:"
+        puts "\n--> Applying enthymemes optimization:"
       end
       removed = []
       aps.public_space.attacks.each do |atk|
         skip = false
-        next if @premises_hash["#{atk.argument1}_#{atk.argument2}"] # Too difficult if the attack is in premise
+        next unless @premises_hash["#{atk.argument1}_#{atk.argument2}"].nil? # Too difficult if the attack is in premise
         atking = Predicate.new(:pub, atk.argument1)
         atked  = Predicate.new(:pub, atk.argument2)
         (aps.agent.rules + aps.opponent.rules).each do |rule|
           break if skip
           rule.alternatives.each do |alt|
-            atk_mod = nil
-            arg_mod = nil
+            atk_mod = arg_mod = nil
             alt.modifiers.each do |m|
-              if m.predicate == atk
-                atk_mod = m.type
-              end
-              if m.predicate == atking
-                arg_mod = m.type
-              end
+              atk_mod = m.type if m.predicate == atk
+              arg_mod = m.type if m.predicate == atking
             end
-            if (arg_mod.nil? && !atk_mod.nil?) || (!arg_mod.nil? && !atk_mod.nil? && (atk_mod != arg_mod)) || (atk_mod == :add && !rule.premises.include?(atked))
+            atk_but_no_arg     = (arg_mod.nil? && !atk_mod.nil?)
+            atk_arg_sides_diff = (!arg_mod.nil? && !atk_mod.nil? && (atk_mod != arg_mod))
+            atk_but_no_atked   = (atk_mod == :add && !rule.premises.include?(atked))
+            if atk_but_no_arg || atk_arg_sides_diff || atk_but_no_atked
               skip = true
               break
             end
           end
         end
-        unless skip
-          removed << atk
-        end
+        removed << atk unless skip
       end
 
       removed.each do |atk|
@@ -138,125 +183,70 @@ Attacks removed: #{atk_removed.map{|atk| "e(#{atk.argument1},#{atk.argument2})"}
     end
 
     # Removes arguments of agent 1 that can never be defended
-    def remove_dominated(pomdp, verbose)
+    def remove_dominated(aps, verbose)
+      if verbose
+        puts "\n--> Applying dominated arguments optimization:"
+      end
       graph = AtkGraph::Graph.new
-      pomdp.public_space.backup_attacks.each do |atk| # Creates the graph
+      aps.public_space.backup_attacks.each do |atk| # Creates the graph
         arg1 = atk.argument1
         arg2 = atk.argument2
-        v1   = AtkGraph::Vertex.new(arg1, pomdp.agent.arguments.include?(arg1) ? :agent : :opponent)
-        v2   = AtkGraph::Vertex.new(arg2, pomdp.agent.arguments.include?(arg2) ? :agent : :opponent)
+        next if @user_hash[arg1].nil? || @user_hash[arg2].nil?
+        v1   = AtkGraph::Vertex.new(arg1)
+        v2   = AtkGraph::Vertex.new(arg2)
         graph.add_atk(v1, v2)
       end
 
+      modified = false
       loop do
-        to_rem = graph.vertices.select {|v| v.dominated? && v.owner == :agent} # Gets all dominated arguments of agent 1
+        to_rem = graph.vertices.select {|v| v.dominated? && @user_hash[v.value] == :agent} # Gets all dominated arguments of agent 1
         break if to_rem.empty?
+        modified = true
         to_rem.each do |vertex|
-          pomdp.agent.arguments.delete(vertex.value)
+          aps.agent.arguments.delete(vertex.value)
           puts "Argument #{vertex.value} removed" if verbose
-          pomdp.agent.actions.reverse.each_with_index do |act, act_i|
+          aps.agent.actions.reverse.each do |act|
             act.alternatives[0].modifiers.delete_if {|m| m.predicate.argument1 == vertex.value} # Removes modifiers
-            if act.alternatives[0].modifiers.empty? # If no more, removes the rule, otherwise, removes premises
-              pomdp.agent.actions.delete_at(-(act_i+1))
-              name = pomdp.agent.action_names.delete_at(-(act_i+1))
-              puts "Action #{name} removed" if verbose
-            else
-              act.premises.delete_if {|p| p.argument1 == vertex.value}
-            end
+            act.premises.delete_if {|p| p.argument1 == vertex.value}
           end
           graph.vertices.delete(vertex)
         end
       end
+      modified
     end
 
-    def optimize_initial(aps, verbose)
-      optimize_initial_agent(aps.agent, verbose)
-      optimize_initial_public(aps.agent, aps.opponent, aps.public_space, verbose)
-    end
-
-    def optimize_initial_agent(agent, verbose)
-      args_to_rem = Set.new
-      old_set     = nil
-      loop do
-        agent.arguments.each do |arg|
-          args_to_rem << Predicate.new(:priv, arg)
-          agent.actions.each do |act|
-            act.alternatives[0].modifiers.select{|m| m.predicate.type == :priv}.each do |mod|
-              args_to_rem.delete(mod.predicate.unsided) if (mod.type == :rem) == agent.initial_state[mod.predicate.argument1]
-            end
-          end
-        end
-        break if args_to_rem.empty? || args_to_rem == old_set
-        args_to_rem.each do |arg|
-          agent.arguments.delete(arg.argument1)
-          act_to_rem = []
-          agent.actions.each_with_index do |act, act_i|
-            if (index = act.premises.lazy.map(&:unsided).find_index(arg))
-              if agent.initial_state[arg.argument1] == act.premises[index].positive
-                act.premises.delete_at(index)
+    def remove_incompatible_initial(aps, verbose)
+      if verbose
+        puts "\n--> Applying incompatible initial arguments optimization:"
+      end
+      checker = ->(rules, type, suffix, initial) do
+        mod = false
+        rules.each do |r|
+          r.premises.select{|p| p.type == type}.each do |p|
+            if @modif_hash["#{p.argument1}#{suffix}"].nil?
+              print "#{p.argument1}#{suffix} optimizes #{r}" if verbose
+              if @premises_hash["#{p.argument1}#{suffix}"] != (initial[p.argument1] ? :pos : :neg)
+                r.alternatives.each{|a| a.modifiers.clear}
               else
-                act_to_rem << act_i
+                r.premises.reject!{|prem| p == prem}
+              end
+              puts " to #{r}"
+              mod = true
+            else # !@modif_hash["#{p.argument1}1"].nil?
+              if @modif_hash["#{p.argument1}#{suffix}"] == (initial[p.argument1] ? :pos : :neg)
+                print "#{p.argument1}#{suffix} optimizes #{r}" if verbose
+                r.alternatives.each{|a| a.modifiers.clear}
+                puts " to #{r}"
+                mod = true
               end
             end
           end
-          act_to_rem.reverse_each do |act_i|
-            agent.actions.delete_at(act_i)
-            agent.action_names.delete_at(act_i)
-          end
-          puts "Rule(s) removed: #{act_to_rem.size}" unless act_to_rem.size == 0 || !verbose
         end
-        old_set = Set.new(args_to_rem)
-        args_to_rem.clear
+        mod
       end
-    end
-
-    def optimize_initial_public(agent, opponent, public_space, verbose)
-      args_to_rem = Set.new
-      old_set     = nil
-      tracker = lambda do |ag|
-        ag.rules.each do |rule|
-          rule.alternatives.each do |alt|
-            alt.modifiers.select{|m| m.predicate.type == :pub}.each do |mod|
-              args_to_rem.delete(mod.predicate.unsided) if (mod.type == :rem) == public_space.initial_state[mod.predicate.argument1]
-            end
-          end
-        end
-      end
-
-      remover = lambda do |ag, arg|
-        act_to_rem = []
-        ag.rules.each_with_index do |act, act_i|
-          if (index = act.premises.lazy.map(&:unsided).find_index(arg))
-            if public_space.initial_state[arg.argument1] == act.premises[index].positive?
-              act.premises.delete_at(index)
-            else
-              act_to_rem << act_i
-            end
-          end
-        end
-        act_to_rem.reverse_each do |act_i|
-          ag.rules.delete_at(act_i)
-          ag.action_names.delete_at(act_i) if ag.respond_to?(:action_names)
-          ag.extract_flags if ag.respond_to?(:extract_flags)
-        end
-        puts "Rule(s) removed: #{act_to_rem.size}" unless act_to_rem.size == 0 || !verbose
-      end
-
-      loop do
-        public_space.arguments.each do |arg|
-          args_to_rem << Predicate.new(:pub, arg)
-          tracker.call(agent)
-          tracker.call(opponent)
-        end
-        break if args_to_rem.empty? || args_to_rem == old_set
-        args_to_rem.each do |arg|
-          public_space.arguments.delete(arg.argument1)
-          remover.call(agent, arg)
-          remover.call(opponent, arg)
-        end
-        old_set = Set.new(args_to_rem)
-        args_to_rem.clear
-      end
+      modified = checker.(aps.agent.rules, :priv, 1, aps.agent.initial_state)
+      modified = checker.(aps.agent.rules, :pub, "", aps.public_space.initial_state) || modified
+      checker.(aps.opponent.rules, :pub, "", aps.public_space.initial_state) || modified
     end
   end
 end

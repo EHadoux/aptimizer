@@ -60,7 +60,7 @@ RSpec.describe Aptimizer::Parser do
       rule = Aptimizer::Parser.parse(Aptimizer::Lexer::lex("a(a) => 1.0: +a(b)"))
       expect(rule[0]).to be_a(Aptimizer::Rule)
       expect(rule.size).to eq(1)
-      expect(rule[0].premises.size).to eq(2)
+      expect(rule[0].premises.size).to eq(1)
       expect(rule[0].alternatives[0].probability).to eq(1)
       expect(rule[0].alternatives[0].modifiers.size).to eq(1)
     end

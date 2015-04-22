@@ -1,6 +1,6 @@
 require "nokogiri"
 
-module Arg2MOMDP
+module Aptimizer
   module POMDPX
     class XMLBuilder
       attr_reader :version, :id, :pomdp

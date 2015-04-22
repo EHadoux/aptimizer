@@ -1,7 +1,7 @@
 module Aptimizer
   class Agent
-    attr_reader :actions, :initial_state, :action_names, :goals
-    attr_accessor :arguments
+    attr_reader :initial_state, :action_names, :goals
+    attr_accessor :arguments, :actions
     alias :rules :actions
     # Constructs the agent to optimize.
     #
@@ -21,6 +21,10 @@ module Aptimizer
       @action_names  = action_names || (0..@actions.size-1).map {|i| "a#{i}"}
       raise "Number of actions and names are different." unless @actions.size == @action_names.size
       filter_initial_state(initial_state)
+    end
+
+    def rules=(rules)
+      @actions = rules
     end
 
     private

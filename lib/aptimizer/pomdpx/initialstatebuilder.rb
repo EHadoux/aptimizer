@@ -1,4 +1,4 @@
-module Arg2MOMDP
+module Aptimizer
   module POMDPX
     class InitialStateBuilder
       extend Helpers

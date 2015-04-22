@@ -1,7 +1,7 @@
 module Aptimizer
   class Opponent
-    attr_reader :rules#, :flags
-    attr_accessor :arguments
+    #attr_reader :rules#, :flags
+    attr_accessor :arguments, :rules, :flags
 
     # Constructs the opponent.
     #
@@ -13,7 +13,7 @@ module Aptimizer
       @arguments = arguments
       @rules     = rules
       @flags     = []
-      #extract_flags
+      extract_flags
       @rules.each do |r|
         r.premises.each {|p| p.change_owner(2)}
         r.alternatives.each {|a| a.modifiers.each {|m| m.predicate.change_owner(2)}}
@@ -22,12 +22,12 @@ module Aptimizer
     end
 
     # Extracts flags number in order to select alternatives when transitioning.
-    #def extract_flags
-    #  @flags.clear
-    #  rules.each_with_index do |r, i|
-    #    @flags << i unless r.alternatives.size == 1
-    #  end
-    #end
+    def extract_flags
+      @flags.clear
+      rules.each_with_index do |r, i|
+        @flags << i unless r.alternatives.size == 1
+      end
+    end
 
     private
 

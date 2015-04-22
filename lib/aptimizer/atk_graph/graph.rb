@@ -1,4 +1,4 @@
-module Arg2MOMDP
+module Aptimizer
   module AtkGraph
     class Graph
       attr_accessor :vertices

@@ -1,6 +1,6 @@
-#arg2momdp [![DOI](https://zenodo.org/badge/7153/EHadoux/arg2momdp.svg)](http://dx.doi.org/10.5281/zenodo.13195)
+#Aptimizer [![DOI](https://zenodo.org/badge/7153/EHadoux/aptimizer.svg)](http://dx.doi.org/10.5281/zenodo.13195)
 
-[![Build Status](https://img.shields.io/travis/EHadoux/arg2momdp.svg?branch=master&style=flat-square)](https://travis-ci.org/EHadoux/arg2momdp) [![Code Climate](https://img.shields.io/codeclimate/github/EHadoux/arg2momdp.svg?style=flat-square)](https://codeclimate.com/github/EHadoux/arg2momdp) [![Test Coverage](https://img.shields.io/codeclimate/coverage/github/EHadoux/arg2momdp.svg?style=flat-square)](https://codeclimate.com/github/EHadoux/arg2momdp) [![Dependency Status](https://img.shields.io/gemnasium/EHadoux/arg2momdp.svg?style=flat-square)](https://gemnasium.com/EHadoux/arg2momdp) [![Inline docs](http://inch-ci.org/github/EHadoux/arg2momdp.svg?branch=master&style=flat-square)](http://inch-ci.org/github/EHadoux/arg2momdp) [![Yard Docs](http://img.shields.io/badge/yard-docs-blue.svg?style=flat-square)](http://rubydoc.info/github/EHadoux/arg2momdp/master)
+[![Build Status](https://img.shields.io/travis/EHadoux/aptimizer.svg?branch=master)](https://travis-ci.org/EHadoux/aptimizer) [![Code Climate](https://img.shields.io/codeclimate/github/EHadoux/aptimizer.svg)](https://codeclimate.com/github/EHadoux/aptimizer) [![Test Coverage](https://img.shields.io/codeclimate/coverage/github/EHadoux/arg2momdp.svg)](https://codeclimate.com/github/EHadoux/aptimizer) [![Dependency Status](https://img.shields.io/gemnasium/EHadoux/aptimizer.svg)](https://gemnasium.com/EHadoux/aptimizer) [![Inline docs](http://inch-ci.org/github/EHadoux/aptimizer.svg?branch=master)](http://inch-ci.org/github/EHadoux/aptimizer) [![Yard Docs](http://img.shields.io/badge/yard-docs-blue.svg)](http://rubydoc.info/github/EHadoux/aptimizer/master)
 
 
 
@@ -20,10 +20,10 @@ The file can then be processed with the algorithm of your choice.
 ##Input format
 In all the input strings, spaces are not read, i.e., ```a,b``` is equivalent to ```a, b```.
 ###Arguments
-Arguments are represented by a list of lowcase letters (```a```) or words (```aaaaaa```) separated by commas, e.g. ```a, bb, ccc,d```
+Arguments are represented by a list of lowcase letters (```a```) or words (```aaaaaa```)
 
 ###Attacks
-Attacks are a list of ```e``` predicates applied on two arguments, separated by a comma, e.g. ```e(a,bb), e(ccc, bb), e(d,a)```
+Attacks are a list of ```e``` predicates applied on two arguments, separated by a comma, e.g. ```e(a,bb)```
 
 ###Goals
 Goals are a list of ```g``` predicates applied to one argument, separated by ampersands (```&```). 
@@ -60,12 +60,14 @@ The sets of rules are composed by rules, separated by commas.
 The initial state can be specified as a list of predicates, similarly to rule premisses.
 All unspecified predicates are supposed to be false.
 
+###See examples for more use cases
+
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'arg2momdp'
+gem 'aptimizer'
 ```
 
 And then execute:
@@ -74,15 +76,15 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install arg2momdp
+    $ gem install aptimizer
 
 ## Usage
 
-TODO: Write usage instructions here
+Call ```aptimizer``` without argument to see the help screen.
 
 ## Contributing
 
-1. Fork it ( https://github.com/EHadoux/arg2momdp/fork )
+1. Fork it ( https://github.com/EHadoux/aptimizer/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

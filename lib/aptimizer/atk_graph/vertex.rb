@@ -1,25 +1,24 @@
-module Arg2MOMDP
+module Aptimizer
   module AtkGraph
     class Vertex
-      attr_accessor :owner, :parents, :value, :children
+      attr_accessor :parents, :value, :children
 
-      def initialize(value, owner)
+      def initialize(value)
         @value    = value
-        @owner    = owner
         @parents  = []
         @children = []
       end
 
       def leaf?
-        return @parents.empty?
+        @parents.empty?
       end
 
       def dominated?
-        return !leaf? && @parents.all?(&:leaf?)
+        !leaf? && @parents.all?(&:leaf?)
       end
 
       def ==(o)
-        return @value == o.value && @owner == o.owner
+        @value == o.value
       end
 
       def eql?(o)

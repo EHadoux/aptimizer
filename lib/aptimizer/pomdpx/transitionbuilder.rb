@@ -1,4 +1,4 @@
-module Arg2MOMDP
+module Aptimizer
   module POMDPX
     class TransitionBuilder
       extend Helpers
@@ -7,22 +7,22 @@ module Arg2MOMDP
         # In a further version obviously.
 
         def build_transitions(xml, pomdp)
-          build_flags_transitions(xml, pomdp.opponent)
+          #build_flags_transitions(xml, pomdp.opponent)
           modified_by = get_modifying_rules(pomdp.agent, pomdp.opponent)
           build_non_modified_predicates(xml, pomdp, modified_by)
           build_agent_private_transitions(xml, pomdp.agent, modified_by)
           build_public_argument_transitions(xml, pomdp.agent, pomdp.opponent, modified_by)
         end
 
-        def build_flags_transitions(xml, opponent)
-          opponent.flags.each do |f|
-            name    = "_nr#{f+1}"
-            parents = "action"
-            state   = "* -"
-            prob    = opponent.rules[f].alternatives.map(&:probability).join(" ")
-            build_cond_prob(xml, name, parents, state, prob)
-          end
-        end
+        #def build_flags_transitions(xml, opponent)
+        #  opponent.flags.each do |f|
+        #    name    = "_nr#{f+1}"
+        #    parents = "action"
+        #    state   = "* -"
+        #    prob    = opponent.rules[f].alternatives.map(&:probability).join(" ")
+        #    build_cond_prob(xml, name, parents, state, prob)
+        #  end
+        #end
 
         def build_agent_private_transitions(xml, agent, modification_hash)
           private_args_selector = lambda {|p| p[0].type == :priv && p[0].owner == 1 && !p[1][0].empty? }
@@ -217,7 +217,7 @@ module Arg2MOMDP
         end
       end
 
-      private_class_method :build_agent_private_transitions, :build_flags_transitions,
+      private_class_method :build_agent_private_transitions, #:build_flags_transitions,
                            :build_public_argument_transitions, :build_non_modified_predicates,
                            :build_agent_side_transitions
     end

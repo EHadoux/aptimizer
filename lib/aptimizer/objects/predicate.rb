@@ -40,9 +40,9 @@ module Aptimizer
 
     def unsided
       if @positive
-        p
+        self
       else
-        p.negate
+        negate
       end
     end
 
