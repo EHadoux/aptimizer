@@ -1,4 +1,4 @@
-#Aptimizer [![DOI](https://zenodo.org/badge/7153/EHadoux/aptimizer.svg)](http://dx.doi.org/10.5281/zenodo.13195)
+#Aptimizer [![DOI](https://zenodo.org/badge/7153/EHadoux/aptimizer.svg)](http://dx.doi.org/10.5281/zenodo.17034)
 
 [![Build Status](https://img.shields.io/travis/EHadoux/aptimizer.svg?branch=master)](https://travis-ci.org/EHadoux/aptimizer) [![Code Climate](https://img.shields.io/codeclimate/github/EHadoux/aptimizer.svg)](https://codeclimate.com/github/EHadoux/aptimizer) [![Test Coverage](https://img.shields.io/codeclimate/coverage/github/EHadoux/arg2momdp.svg)](https://codeclimate.com/github/EHadoux/aptimizer) [![Dependency Status](https://img.shields.io/gemnasium/EHadoux/aptimizer.svg)](https://gemnasium.com/EHadoux/aptimizer) [![Inline docs](http://inch-ci.org/github/EHadoux/aptimizer.svg?branch=master)](http://inch-ci.org/github/EHadoux/aptimizer) [![Yard Docs](http://img.shields.io/badge/yard-docs-blue.svg)](http://rubydoc.info/github/EHadoux/aptimizer/master)
 
