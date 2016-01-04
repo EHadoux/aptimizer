@@ -13,8 +13,8 @@ module Arg2MOMDP
       %Q{
 Agent internal arguments: #{agent.arguments}
 Opponent internal arguments: #{opponent.arguments}
-Attacks: #{public_space.attacks}
-Agent goal: #{agent.goals.to_a.join(" &&")}
+Attacks: #{public_space.attacks.join(", ")}
+Agent goal: #{agent.goals.to_a.join(" &")}
 
 Agent rules:\n#{agent.action_names.zip(agent.actions).map{|n,a| "#{n}: #{a}"}.join("\n")}
 

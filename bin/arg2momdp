@@ -5,20 +5,22 @@ require "thor"
 
 class Arg2MOMDPCli < Thor
   desc "debug PROBLEM.yml", "Shows optimizations applied and the resulting problem for debug purpose"
+  method_option :optimizations, :default => [], :type => :array
   def debug(problem)
     yaml = YAML.load_file(problem)
-    puts loadPOMDP(yaml, true)
+    puts loadPOMDP(yaml, true, options[:optimizations])
   end
 
   desc "pomdpx PROBLEM.yml", "Generates, optimizes and converts the problem to a POMDPX file then prints it to STDOUT"
+  method_option :optimizations, :default => [], :type => :array
   def pomdpx(problem)
     yaml = YAML.load_file(problem)
-    pomdp = loadPOMDP(yaml, false)
+    pomdp = loadPOMDP(yaml, false, options[:optimizations])
     puts Arg2MOMDP::POMDPX::XMLBuilder.new(yaml["version"], yaml["title"], pomdp).build_pomdpx
   end
 
   no_commands do
-    def loadPOMDP(yaml, verbose)
+    def loadPOMDP(yaml, verbose, optimizations)
       argarr   = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer.lex(yaml["arguments"].join(",")))
       atkarr   = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer.lex(yaml["attacks"].join(",")))
       r1arr    = Arg2MOMDP::Parser.parse(Arg2MOMDP::Lexer.lex(yaml["agent"].map{|r| "#{r["premises"]} => #{r["claims"].join("|")}"}.join(",")))
@@ -31,7 +33,7 @@ class Arg2MOMDPCli < Thor
       opponent     = Arg2MOMDP::Opponent.new(argarr, r2arr)
       public_space = Arg2MOMDP::PublicSpace.new(argarr, atkarr, initarr)
       pomdp        = Arg2MOMDP::POMDP.new(yaml["discount"], agent, opponent, public_space)
-      Arg2MOMDP::Optimizer.optimize(pomdp, verbose)
+      Arg2MOMDP::Optimizer.optimize(pomdp, verbose, *optimizations.map(&:to_sym))
     end
   end
 end

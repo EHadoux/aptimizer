@@ -1,0 +1,46 @@
+title: bipartite
+
+version: 1
+
+discount: 0.9
+
+arguments: [a, b, c, f, g, h]
+
+attacks:
+ - e(f,a)
+ - e(g,a)
+ - e(b,f)
+ - e(h,b)
+ - e(c,g)
+
+agent:
+ - premises: "h(a)"
+   claims:
+   - "1.0: +a(a)"
+
+ - premises: "h(b) & a(f)"
+   claims:
+   - "1.0: +a(b)"
+
+ - premises: "h(c) & a(g)"
+   claims:
+   - "1.0: +a(c)"
+
+opponent:
+ - premises: "h(f) & h(g) & a(a)"
+   claims:
+   - "0.7: +a(f)"
+   - "0.3: +a(g)"
+
+ - premises: "h(h) & a(b)"
+   claims:
+   - "1.0: +a(h)"
+
+initial: "h(a) & h(b) & h(c)"
+
+goals: g(a)
+
+action_names:
+ - adda
+ - addb
+ - addc

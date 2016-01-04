@@ -83,28 +83,34 @@ module Arg2MOMDP
               premisses   = prem_set.to_a
               transitions = [] << "* - " + ("* " * (premisses.size - 1)) + ("* " * flags_set.size) + "-" << "identity" << nil
               pairs.each_with_index do |rules_i, act_i|
-                instance    = (["*"] * (prem_set.size + 1)) + (["*"] * flags_set.size) + ["-"]
+                instance    = (["*"] * (prem_set.size + 1)) + (flags_set.map{|i| "r#{i}"}) + ["-"]
                 instance[0] = agent.action_names[act_i]
                 instance[1] = "-"
                 agent.actions[act_i].premises.each do |prem|
                   instance[premisses.find_index(prem.unsided)+1] = prem.positive ? "s1" : "s0"
                 end
+                modified_instance = Array.new(instance)
                 agent.actions[act_i].alternatives[0].modifiers.each do |mod|
                   index = premisses.find_index(mod.predicate)
-                  instance[index+1] = mod.type == :add ? "s1" : "s0" unless index.nil?
+                  modified_instance[index+1] = mod.type == :add ? "s1" : "s0" unless index.nil?
                 end
-                [false, true].repeated_permutation(rules_i.size).sort_by { |p| p.count(true) }.drop(1).each do |perm|
+                [false, true].repeated_permutation(rules_i.size).sort_by { |p| p.count(true) }.each do |perm|
                   interm_state    = Array.new(instance)
+                  modified_interm_state = Array.new(modified_instance)
                   cumulated_prems = Set.new(agent.actions[act_i].premises.map(&:unsided))
                   cumulated_prems.merge(agent.actions[act_i].alternatives[0].modifiers.map(&:predicate))
                   skip            = false
                   perm.each_with_index do |val, ind|
                     next unless val
-                    if compatible?(opponent.rules[rules_i[ind]], interm_state, premisses)
+                    if compatible?(opponent.rules[rules_i[ind]], modified_interm_state, premisses)
                       prem_to_loop = prem_set - cumulated_prems
                       rule_prem    = opponent.rules[rules_i[ind]].premises
                       rule_prem.each do |prem|
-                        interm_state[premisses.find_index(prem.unsided)+1] = prem.positive ? "s1" : "s0" if prem_to_loop.include?(prem.unsided)
+                        if prem_to_loop.include?(prem.unsided)
+                          index = premisses.find_index(prem.unsided)+1
+                          interm_state[index] = prem.positive ? "s1" : "s0"
+                          modified_interm_state[index] = prem.positive ? "s1" : "s0"
+                        end
                       end
                       cumulated_prems.merge(rule_prem.map(&:unsided))
                     else
@@ -133,7 +139,8 @@ module Arg2MOMDP
                       rule = opponent.rules[rule_i]
                       next unless perm[ind]
                       alt  = rule.alternatives.size > 1 ? (flags.shift[-1].to_i - 1) : 0
-                      interm_state_with_flags[-rule_i-1] = "alt#{alt+1}" if rule.alternatives.size > 1
+                      index = interm_state_with_flags.find_index("r#{rule_i}")
+                      interm_state_with_flags[index] = "alt#{alt+1}" if rule.alternatives.size > 1
                       if rule.alternatives[alt].modifies?(pred)
                         modified = true
                         mod = rule.alternatives[alt].modifiers.select { |m| m.predicate == pred }
@@ -142,6 +149,18 @@ module Arg2MOMDP
                         mod_sides[mod.type == :rem ? 0 : 1] << rule_i
                       else
                         mod_sides[2] << rule_i
+                      end
+                    end
+                    unless modified
+                      mod_sides = [[], [], []]
+                      if agent.actions[act_i].alternatives[0].modifies?(pred)
+                        modified = true
+                        mod = agent.actions[act_i].alternatives[0].modifiers.select { |m| m.predicate == pred }
+                        raise "Bug" if mod.size != 1
+                        mod = mod[0]
+                        mod_sides[mod.type == :rem ? 0 : 1] = act_i
+                      else
+                        mod_sides[2] = act_i
                       end
                     end
                     next unless modified
@@ -162,6 +181,7 @@ module Arg2MOMDP
                       s1_proba   = mod_sides[1].size.to_f / sides_sum
                       probas_str = "#{s0_proba} #{s1_proba}"
                     end
+                    interm_state_with_flags.map!{|i| i.start_with?("r") ? "*" : i}
                     transitions << interm_state_with_flags.join(" ") << probas_str << rules_i.map{|r| "r#{r+1}=#{perm[r] ? "1" : "0"}"}.join(" ")
                   end
                 end

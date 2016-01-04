@@ -16,10 +16,11 @@ module Arg2MOMDP
 
       def compatible?(rule, instance, prem_arr)
         premisses = []
-        prem_arr[1..-1].each_with_index do |prem, prem_i|
-          if instance[prem_i] == "s0"
+        prem_arr.drop(1).each_with_index do |prem, prem_i|
+          next unless rule.premises.map(&:unsided).include?(prem)
+          if instance[prem_i+2] == "s0"
             premisses << prem.negate
-          elsif instance[prem_i] == "s1"
+          elsif instance[prem_i+2] == "s1"
             premisses << prem.clone
           end
         end
@@ -76,7 +77,8 @@ module Arg2MOMDP
         pred_arr.each do |pred, value|
           return false if pred.positive && !value
           next unless pred.positive || value
-          if is_true_dr?(pred, atk_arr, value_hash, public_space)
+          stack = [pred]
+          if is_true_dr?(pred, atk_arr, value_hash, public_space, stack)
             return false unless pred.positive
           else
             return false if pred.positive
@@ -91,7 +93,8 @@ module Arg2MOMDP
         pred_arr.each do |pred, value|
           return false if pred.positive && !value
           next unless pred.positive || value
-          if is_true?(pred, atk_arr, value_hash)
+          stack = [pred]
+          if is_true?(pred, atk_arr, value_hash, stack)
             return false unless pred.positive
           else
             return false if pred.positive
@@ -100,28 +103,35 @@ module Arg2MOMDP
         return true
       end
 
-      def is_true_dr?(predicate, atk_arr, value_hash, public_space)
+      def is_true_dr?(predicate, atk_arr, value_hash, public_space, stack)
         return value_hash[predicate] if value_hash.include?(predicate)
-        atk_arr.lazy.select{|atk| public_space.backup_attacks.include? Predicate.new(:atk, atk[0].argument1, arg2:predicate.argument1)}.each do |atk|
+        atk_arr.lazy.select{|atk| public_space.backup_attacks.include?(Predicate.new(:atk, atk[0].argument1, arg2:predicate.argument1)) && stack.none?{|p| atk[0].argument1 != p.argument1}}.each do |atk|
           next unless atk[1]
-          if is_true_dr?(atk[0], atk_arr, value_hash, public_space)
+          stack.unshift atk[0]
+          if is_true_dr?(atk[0], atk_arr, value_hash, public_space, stack)
+            stack.shift
             value_hash[predicate] = false
             return false
           end
         end
         value_hash[predicate] = true
+        stack.shift
         return true
       end
 
-      def is_true?(predicate, atk_arr, value_hash)
+      def is_true?(predicate, atk_arr, value_hash, stack)
         return value_hash[predicate] if value_hash.include?(predicate)
-        atk_arr.lazy.select{|atk| atk[0].argument2 == predicate.argument1}.each do |atk|
+        atk_arr.lazy.select{|atk| (atk[0].argument2 == predicate.argument1) && stack.none?{|p| atk[0].argument1 != p.argument1 && atk[0].argument2 != p.argument2}}.each do |atk|
           next unless atk[1]
-          if is_true?(atk[0], atk_arr, value_hash)
+          stack.unshift atk[0]
+          res = is_true?(atk[0], atk_arr, value_hash, stack)
+          if res
+            stack.shift
             value_hash[predicate] = false
             return false
           end
         end
+        stack.shift
         value_hash[predicate] = true
         return true
       end

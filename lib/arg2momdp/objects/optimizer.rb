@@ -2,8 +2,8 @@ module Arg2MOMDP
   class Optimizer
     class << self
       def optimize(pomdp, verbose=true, *optimizations)
-        flags_list = [:agent_args, :opp_args, :initial, :attacks, :dominated]
-        f = (optimizations - flags_list) and (raise "Unknown flags :#{f}" unless f.empty?)
+        flags_list = [:agent_args, :opp_args, :initial, :attacks, :dominated, :none]
+        f = (optimizations - flags_list) and (raise "Unknown flags :#{f} Known flags are #{flags_list}" unless f.empty?)
         optimizations = flags_list if optimizations.empty?
         optimizations += [:agent_args, :opp_args] if (optimizations.include?(:initial) || optimizations.include?(:dominated))
         remove_useless_args(pomdp.agent, verbose) if optimizations.include?(:agent_args)
@@ -25,7 +25,7 @@ module Arg2MOMDP
             args.merge(alt.modifiers.select{|m| m.predicate.type == :priv}.map{|m| m.predicate.argument1}) # Merge all modifiers
           end
         end
-        puts "Arguments removed: #{agent.arguments.size - args.size}" if verbose
+        puts "Arguments removed: #{(agent.arguments - args.to_a).map{|a| "h(#{a})"}}" if verbose
         agent.arguments = args.to_a # Arguments not involved in any premise or modifier are left over
       end
 
